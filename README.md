@@ -1,13 +1,17 @@
 # SENG300-Project-Iteration2
 
 Jack Graver
-Christopher Thomson
-Shaim Momin
-Raja Muhammed Omar
+<br>Christopher Thomson
+<br>Shaim Momin
+<br>Raja Muhammed Omar
+<br>Michael Hoang
+<br>Fei Ding
+<br>Dylan Dizon
+<br>Shenuk Perera
 
 
 Self Checkout Software project iteration 2. 
-Working as a team to develop software for:
+<br><br>Working as a team to develop software for:
   - Add Item via Handheld Scan
   - Pay with Coin
   - Pay with Credit via Swipe
