@@ -27,6 +27,7 @@ abstract class AbstractBarcodeScanner extends AbstractDevice<BarcodeScannerListe
 		if(isDisabled())
 			return; // silently ignore
 	
+		System.out.println("here");
 		if(random.nextInt(100) >= probabilityOfFailedScan)
 			notifyBarcodeScanned(item.getBarcode());
 	
