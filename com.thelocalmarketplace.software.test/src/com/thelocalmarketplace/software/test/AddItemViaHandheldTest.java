@@ -1,5 +1,6 @@
 package com.thelocalmarketplace.software.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -10,29 +11,45 @@ import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
-import com.jjjwelectronics.scanner.BarcodedItem;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.software.AddItemViaHandheld;
 
 import powerutility.PowerGrid;
 
 public class AddItemViaHandheldTest {
     
-    SelfCheckoutStationBronze checkoutStation = new SelfCheckoutStationBronze();
+    SelfCheckoutStationBronze checkoutStationBronze = new SelfCheckoutStationBronze();
+    SelfCheckoutStationSilver checkoutStationSilver = new SelfCheckoutStationSilver();
+    SelfCheckoutStationGold checkoutStation = new SelfCheckoutStationGold();
 
-    AddItemViaHandheld testing = new AddItemViaHandheld(checkoutStation);
+    AddItemViaHandheld testing = new AddItemViaHandheld(checkoutStation.handheldScanner);
 
     private BarcodeScannerListenerStub listener;
 
+    /**
+     * Test setup class
+     */
     @Before
     public void setup() {
+        //Activate bronze checkout station
+        checkoutStationBronze.plugIn(PowerGrid.instance());
+        checkoutStationBronze.turnOn();
+
+        //Activate silver checkout station
+        checkoutStationSilver.plugIn(PowerGrid.instance());
+        checkoutStationSilver.turnOn();
+
+        //Activate Gold (primary test) checkout station
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
         
+        //Instantiate listener stub for BarcodeScanner and attach to scanner
         listener = new BarcodeScannerListenerStub();
-        checkoutStation.mainScanner.register(listener);
+        checkoutStation.handheldScanner.register(listener);
     }
 
 
@@ -43,14 +60,21 @@ public class AddItemViaHandheldTest {
         BarcodedProduct product = new BarcodedProduct(barcode, "Product", 10, 15.0);
         testing.addItem(product);
         
-        assertTrue(listener.itemScanned);
+        if(listener.itemScanned) {
+            assertEquals(listener.barcodeScannerUsed, checkoutStation.handheldScanner);
+            assertEquals(listener.barcodeScanned, barcode);
+        }   
     }
 }
 
-
+/**
+ * BarcodeScannerListener stub
+ */
 class BarcodeScannerListenerStub implements BarcodeScannerListener {
 
     public boolean itemScanned;
+    public IBarcodeScanner barcodeScannerUsed;
+    public Barcode barcodeScanned;
 
     @Override
     public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
@@ -78,8 +102,9 @@ class BarcodeScannerListenerStub implements BarcodeScannerListener {
 
     @Override
     public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
-        System.out.println("listener activated");
         itemScanned = true;
+        barcodeScannerUsed = barcodeScanner;
+        barcodeScanned = barcode;
     }
 
 }

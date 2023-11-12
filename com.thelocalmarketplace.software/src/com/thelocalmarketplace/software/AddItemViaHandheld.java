@@ -1,22 +1,32 @@
 package com.thelocalmarketplace.software;
 
 import com.jjjwelectronics.Mass;
-import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 
+/*
+ * Jack Graver - 10187274
+ * .
+ * .
+ * .
+ */
 public class AddItemViaHandheld {
 
-    SelfCheckoutStationBronze scs;
+    IBarcodeScanner scanner;
 
-    public AddItemViaHandheld(SelfCheckoutStationBronze scs) {
-        this.scs = scs;
+    /*
+     * Constructor
+     */
+    public AddItemViaHandheld(IBarcodeScanner scanner) {
+        this.scanner = scanner;
     }
 
+    /*
+     * Add a BarcodedProduct by using SelfCheckoutStation secondary (handheld) scanner
+     */
     public void addItem(BarcodedProduct product) {
         BarcodedItem item = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
-        scs.mainScanner.scan(item);
+        scanner.scan(item);
     }
 }
