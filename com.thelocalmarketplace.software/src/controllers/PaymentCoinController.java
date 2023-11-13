@@ -1,4 +1,5 @@
-package com.thelocalmarketplace.software.payI;
+package controllers;
+
 
 import java.math.BigDecimal;
 
@@ -52,6 +53,8 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
         ss.coinSlot.attach(this);
         ss.coinValidator.attach(this);
     }
+    
+    
 
     /**
      * Signals to the customer the updated amount due after coin insertion.
