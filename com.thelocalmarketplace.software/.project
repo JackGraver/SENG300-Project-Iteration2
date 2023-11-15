@@ -3,6 +3,8 @@
 	<name>com.thelocalmarketplace.software</name>
 	<comment></comment>
 	<projects>
+		<project>com.thelocalmarketplace.hardware_0.1</project>
+		<project>com.thelocalmarketplace.software.test</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -16,7 +18,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1699301684841</id>
+			<id>1699842727883</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
