@@ -8,6 +8,7 @@ Jack Graver
 <br>Fei Ding
 <br>Dylan Dizon
 <br>Shenuk Perera
+<br>Darpal Patel
 
 
 Self Checkout Software project iteration 2. 
