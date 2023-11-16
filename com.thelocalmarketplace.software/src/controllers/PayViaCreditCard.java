@@ -1,20 +1,33 @@
 package controllers;
 
+
+import java.math.BigDecimal;
+
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
+import com.jjjwelectronics.card.BlockedCardException;
+import com.jjjwelectronics.card.Card.CardData;
 import com.jjjwelectronics.card.InvalidPINException;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import observers.CreditCardObserver;
+import powerutility.PowerGrid;
 
-public class PayViaCreditCard extends CardIssuer {
+public class PayViaCreditCard extends CardIssuer implements CreditCardObserver {
 
 	private CreditCard creditCard;
 	private String pin = "";
 	private AbstractSelfCheckoutStation user;
-	private CreditCardObserver creditCardInsertObserver;
-	private long totalCostOfGroceries;
+	private BigDecimal totalCostOfGroceries;
+	private int pinFailTrialCounter;
+	private boolean creditCardSwiped;
+	private int creditCardSwipedCounter = 0;
+	private boolean creditCardDataRead;
+	private int creditCardDataReadCounter = 0;
+	private boolean creditCardPaymentSuccessful;
+	private boolean creditCardPinValid;
+
 	// Scenario pay by credit:
 	// 1. Customer: Inserts a credit card and types the corresponding PIN.
 	// 2. System: Validates the PIN against the credit card.
@@ -43,59 +56,113 @@ public class PayViaCreditCard extends CardIssuer {
 		}
 	}
 
-	/*
-	 * PayViaCreditException Exception thrown when observers do not have expected
-	 * fields for payment.
-	 */
-	public class PayViaCreditException extends Exception {
-		public PayViaCreditException(String errorType) {
-			super("Something is wrong in credit payment. " + errorType);
-		}
+	@Override
+	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
 	}
 
+	@Override
+	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+	}
 
-	public PayViaCreditCard(CreditCard creditCard)
-			throws InsufficientFundsException, InvalidPINException, PayViaCreditException {
-		
+	@Override
+	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+	}
+
+	@Override
+	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+	}
+
+	@Override
+	public void aCardHasBeenSwiped() {
+		this.creditCardSwiped = true;
+		this.creditCardSwipedCounter++;
+		this.creditCardDataRead = false;
+	}
+
+	@Override
+	public void theDataFromACardHasBeenRead(CardData data) {
+		this.creditCardDataRead = true;
+		this.creditCardDataReadCounter++;
+		this.creditCardSwiped = false;
+	}
+
+	@Override
+	public void transactionCompleted() {
+		this.creditCardPaymentSuccessful = true;
+	}
+
+	@Override
+	public void creditCardPinAccepted() {
+		this.creditCardPinValid = true;
+		this.creditCardPaymentSuccessful = false;
+		this.pinFailTrialCounter = 0;
+	}
+
+	public PayViaCreditCard(CreditCard creditCard, String pinInput, BigDecimal totalCostOfGroceries)
+			throws InsufficientFundsException, InvalidPINException {
+
 		super(creditCard.getCompanyName(), creditCard.getMaxHolds());
 		this.creditCard = creditCard;
 		this.pin = creditCard.getPin();
+		setTotalCostOfGroceries(totalCostOfGroceries);
+		
+		checkForPinValidity(pinInput);
+		checkForPaymentValidity();
+	}
 
-		if (creditCard.getBalance() < this.totalCostOfGroceries) {
+	/**
+	 * This method checks for payment validity if the transaction was completed or
+	 * not
+	 * 
+	 * @throws InsufficientFundsException for insufficient funds
+	 */
+	private void checkForPaymentValidity() throws InsufficientFundsException {
+		/**
+		 * This if statement throws an exception if the balance in the credit card is
+		 * not enough
+		 */
+		if (this.creditCard.getBalance().compareTo(this.totalCostOfGroceries) == -1) {
+			setTotalCostOfGroceries(this.totalCostOfGroceries.subtract(this.creditCard.getBalance()));
 			throw new InsufficientFundsException(
-					"You still need " + "$" + (this.totalCostOfGroceries - creditCard.getBalance()));
-		}
-
-		if (creditCardInsertObserver.bankNotifier != "transaction successful") {
-			throw new PayViaCreditException("System Denied Payment.");
-		}
-
-		if (pinIsValid(this.pin)) {
-			if (this.totalCostOfGroceries != 0 && creditCardInsertObserver.bankNotifier == "transaction successful") {
-				creditCard.setBalance(creditCard.getBalance() - this.totalCostOfGroceries);
-			}
-		}
-
-		// 1. If the customer enters the wrong PIN three times in a row, the card will
-		// be blocked.
-		for (int i = 0; i <= 3; i++) {
-			if (!pinIsValid(this.pin)) {
-				throw new InvalidPINException();
-			}
+					"You still need " + "$" + (this.totalCostOfGroceries.subtract(this.creditCard.getBalance())));
+		} else if (this.creditCard.getBalance().compareTo(this.totalCostOfGroceries) == 0) {
+			transactionCompleted();
+			this.creditCard.setBalance(this.creditCard.getBalance().subtract(this.totalCostOfGroceries));
+		} else if (this.creditCard.getBalance().compareTo(this.totalCostOfGroceries) == 1) {
+			transactionCompleted();
+			this.creditCard.setBalance(this.creditCard.getBalance().subtract(this.totalCostOfGroceries));
 		}
 	}
 
-	public void setTotalCostOfGroceries(long totalCostOfGroceries) {
+	private void checkForPinValidity(String pinInput) {
+		/**
+		 * If the customer enters the wrong PIN three times in a row, the card will be
+		 * blocked. If the pin is invalid, the pinTrialCounter increments by 1, and an exception
+		 * is thrown
+		 */
+		if (pinFailTrialCounter == 3) {
+			throw new BlockedCardException();
+		}
+		
+		if (pinIsValid(pinInput) && this.totalCostOfGroceries.compareTo(BigDecimal.ZERO) == 1) {
+			creditCardPinAccepted();
+			this.creditCard.setBalance(this.creditCard.getBalance().subtract(this.totalCostOfGroceries));
+		} else if (!pinIsValid(this.pin)) {
+			this.pinFailTrialCounter++;
+			throw new InvalidPINException();
+		}
+	}
+
+	public void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
 		this.totalCostOfGroceries = totalCostOfGroceries;
 	}
 
-	public long getTotalCostOfGroceries() {
+	public BigDecimal getTotalCostOfGroceries() {
 		return this.totalCostOfGroceries;
 	}
 
-	public boolean pinIsValid(String pinInput) {
+	private boolean pinIsValid(String pinInput) {
 		boolean pinIsValid = this.pin == pinInput;
 		return pinIsValid;
 	}
-
 }
