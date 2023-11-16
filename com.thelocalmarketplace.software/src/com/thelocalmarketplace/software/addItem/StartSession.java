@@ -1,19 +1,19 @@
 package com.thelocalmarketplace.software.addItem;
 
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import powerutility.PowerGrid;
 
 public class StartSession {
 
 	
 	
-    private SelfCheckoutStation selfCheckoutStation;
+    private SelfCheckoutStationGold selfCheckoutStation;
     // Precondition: System is not in a session
     private boolean inSession = false;
 
     
     
-    public StartSession(SelfCheckoutStation station) {
+    public StartSession(SelfCheckoutStationGold station) {
         selfCheckoutStation = station;
     }
 

@@ -8,15 +8,16 @@ import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScale;
+import com.jjjwelectronics.scale.AbstractElectronicScale;
+import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
-import com.jjjwelectronics.scanner.BarcodeScanner;
+import com.jjjwelectronics.scanner.BarcodeScannerGold;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 //import com.thelocalmarketplace.software.test.AddItemControllerTest.ConcreteItem;
 
@@ -24,17 +25,17 @@ import powerutility.PowerGrid;
 
 
 public class AddItemController implements BarcodeScannerListener, ElectronicScaleListener {
-	public SelfCheckoutStation selfCheckoutStation;
+	public SelfCheckoutStationGold selfCheckoutStation;
 	public PowerGrid powerGrid; 
 	private long totalCost;
 	private double totalWeight;
 	private Mass expectedWeight;
-	public ElectronicScale electronicScale;
+	public ElectronicScaleGold electronicScale;
 	public StartSession startSession;
 	
 	public static boolean isBlocked = false;
 	
-	public AddItemController (SelfCheckoutStation ss, PowerGrid pg, StartSession startSess) {
+	public AddItemController (SelfCheckoutStationGold ss, PowerGrid pg, StartSession startSess) {
 		selfCheckoutStation = ss;
 		powerGrid = pg;
 		ss.plugIn(pg);
@@ -42,9 +43,9 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 		setTotalCost(0);
 		setTotalWeight(0);
 		
-		ss.scanner.plugIn(pg);
-		ss.scanner.turnOn();
-		ss.scanner.register(this);
+		ss.mainScanner.plugIn(pg);
+		ss.mainScanner.turnOn();
+		ss.mainScanner.register(this);
 		//electronicScale = new ElectronicScale();
 		
 		ss.baggingArea.plugIn(pg);
@@ -72,6 +73,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 			
 			AddItemController.block();			// Block further customer interaction 
 			
+		
 	
 			 BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 			 if (product != null) {
@@ -97,7 +99,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 		        	Mass After = null;
 		        	
 		            try {
-						After = selfCheckoutStation.baggingArea.getCurrentMassOnTheScale();
+						After = ((AbstractElectronicScale) selfCheckoutStation.baggingArea).getCurrentMassOnTheScale();
 					} catch (OverloadedDevice e) {
 						e.printStackTrace();
 					}
@@ -191,7 +193,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 			expectedWeight = new Mass(getTotalWeight());
 			
 			try {
-				if (expectedWeight.compareTo(selfCheckoutStation.baggingArea.getCurrentMassOnTheScale()) == 0) {
+				if (expectedWeight.compareTo(((AbstractElectronicScale) selfCheckoutStation.baggingArea).getCurrentMassOnTheScale()) == 0) {
 					AddItemController.unblock();	
 				}
 				else {

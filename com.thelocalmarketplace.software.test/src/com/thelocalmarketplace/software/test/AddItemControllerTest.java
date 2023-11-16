@@ -8,14 +8,14 @@ import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScale;
+import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scanner.Barcode;
-import com.jjjwelectronics.scanner.BarcodeScanner;
+import com.jjjwelectronics.scanner.BarcodeScannerGold;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.addItem.AddItemController;
 import com.thelocalmarketplace.software.addItem.StartSession;
@@ -42,14 +42,14 @@ import org.junit.runners.JUnit4;
 // Every test checks the expected behaviour of these two
 // We test each branch of the function for true, false, and null values
 public class AddItemControllerTest {
-	private SelfCheckoutStation selfCheckoutStation;
+	private SelfCheckoutStationGold selfCheckoutStation;
 	public PowerGrid powerGrid;
-	ElectronicScale electronicScale;
+	ElectronicScaleGold electronicScale;
 	private List<Barcode> AddedItems;  
 	private long totalCost;
 	private double totalWeight;
 	AddItemController addItemController;
-	BarcodeScanner scanner;
+	BarcodeScannerGold scanner;
 	StartSession startSession;
 	
 	Numeral[] barcodeDigitsChips= new Numeral[] { Numeral.one, Numeral.two, Numeral.three, Numeral.four, Numeral.five };
@@ -84,10 +84,10 @@ public class AddItemControllerTest {
     @Before
 	public void setUp() {
     
-        selfCheckoutStation = new SelfCheckoutStation();
+        selfCheckoutStation = new SelfCheckoutStationGold();
         powerGrid = PowerGrid.instance();
 
-        scanner = new BarcodeScanner();
+        scanner = new BarcodeScannerGold();
         
         startSession = new StartSession(selfCheckoutStation);
     	startSession.startSession(powerGrid);

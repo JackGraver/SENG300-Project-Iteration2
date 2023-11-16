@@ -3,7 +3,7 @@ package com.thelocalmarketplace.software.test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.software.addItem.*;
 
 import powerutility.PowerGrid;
@@ -13,7 +13,7 @@ import powerutility.PowerGrid;
 
 public class StartSessionTest {
 
-    private SelfCheckoutStation selfCheckoutStation;
+    private SelfCheckoutStationGold selfCheckoutStation;
     private StartSession startSession;
     private PowerGrid powerGrid;
 
@@ -21,7 +21,7 @@ public class StartSessionTest {
     
     @Before
     public void setUp() {
-        selfCheckoutStation = new SelfCheckoutStation();
+        selfCheckoutStation = new SelfCheckoutStationGold();
         startSession = new StartSession(selfCheckoutStation);
         powerGrid = PowerGrid.instance(); // Get the unique instance of PowerGrid
     }
