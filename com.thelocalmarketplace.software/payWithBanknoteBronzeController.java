@@ -32,7 +32,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
     public Boolean enabled;
     public Boolean turnedOn;
 
-    public payWithBanknoteBronzeController(SelfCheckoutStationBronze station){
+    public payWithBanknoteBronzeController(SelfCheckoutStationBronze station) {
         bronzeStation = station;
         bronzeStation.banknoteValidator.attach(this);
         bronzeStation.banknoteStorage.attach(this);
@@ -140,36 +140,53 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
         System.out.println("This Banknote is verified to be false.");
     }
 
+    // set the price of the bill, should be done after choosing paying by banknotes
     public void setTotalPrice(BigDecimal price){
         remainingAmount = price;
     }
 
+    // inputting one or more banknotes, and then it will complete paying process automatically.
     public void payWithBanknote(Banknote... banknotes) throws DisabledException, CashOverloadException {
         int i =0;
         int n = banknotes.length;
-        payingCompleted = false;
+        payingCompleted = false; //the flag of paying process, only paying is completed, it will change to be true
         while(!payingCompleted) {
+
+            //firstly check whether storage unit is full
+            //If it is full, the checkout station cannot receive any banknote.
             if (banknotesFull) {
                 bronzeStation.banknoteInput.receive(banknotes[i]);
                 System.out.println("it is full, cannot insert any banknote.");
             }
+
+            //inserting the banknote
             bronzeStation.banknoteInput.receive(banknotes[i]);
+
+            //Only if the banknote is inserted successfully, it will be verified automatically
             if (banknoteInserted) {
                 //bronzeStation.banknoteValidator.receive(banknotes[i]);
+
+                //Only if the banknote is inserted and verified to be good, it will be added to storage unit.
                 if (banknoteValidity) {
                     //bronzeStation.banknoteStorage.receive(banknotes[i]);
+
+                    //Only if the banknote is inserted, verified to be good, and added to storage unit successfully,
+                    //the remaining amount will be change
                     if (banknoteAdded) {
                         remainingAmount = remainingAmount.subtract(banknotes[i].getDenomination());
                         if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+                            //When remaining amount is still greater than 0, more banknotes should be inserted.
                             System.out.println("the remaining amount is " + remainingAmount);
-                            System.out.println();
                         }
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+                            //When remaining amount is 0, the banknotes paid are enough, and do not need to change
                             System.out.println("the remaining amount is zero.");
                             //printReceipt();
                             payingCompleted = true;
                         }
                         else {
+                            ////When remaining amount less than 0, which means customers pay more money than they should,
+                            // then change should be made
                             System.out.println("the remaining amount is less than zero.");
                             if (!makeChange(remainingAmount.negate())){
                                 canChange = false;
@@ -181,12 +198,16 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                         }
                     }
                     else {
+                        //When the banknote is not added to storage unit successfully,
+                        //it will be returned automatically by hardware
                         System.out.println("the banknote will be returned.");
                         //bronzeStation.banknoteOutput.receive(banknotes[i]);
                         //bronzeStation.banknoteOutput.dispense();
                     }
                 }
                 else {
+                    //When the banknote is not verified to be bad
+                    //it will be returned automatically by hardware
                     System.out.println("the banknote will be returned.");
                     if (bronzeStation.banknoteInput.hasDanglingBanknotes()) {
                         payingCompleted = true;
@@ -194,11 +215,13 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                 }
             }
             else {
+                //When the banknote is not inserted to slot successfully,
+                //it will be returned automatically by hardware
                 System.out.println("the banknote will be returned.");
                 //bronzeStation.banknoteInput.emit(banknotes[i]);
                 //bronzeStation.banknoteInput.removeDanglingBanknote();
             }
-            i++;
+            i++; // continuing inserting more banknotes
             if (i == n && !payingCompleted) {
                 //printReceipt();
                 payingCompleted = true;
@@ -210,6 +233,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
         return bronzeStation;
     }
 
+    //To calculate whether the storage unit have the right combination of banknotes to change
     public List<Banknote> findChange(Banknote[] storedBanknotes, BigDecimal changeAmount) {
         // The value of banknoteSet[i][j] will be true if there is a banknoteSet of
         // set[0..j-1] with sum equal to i
@@ -263,7 +287,9 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
         }
     }
 
+    //Change for the payment
     Boolean makeChange(BigDecimal expectedChange) throws DisabledException, CashOverloadException {
+        //getting all banknotes in the storage unit
         List<Banknote> storedBanknotes = bronzeStation.banknoteStorage.unload();
         ArrayList<Banknote> allBanknotes = new ArrayList<>(storedBanknotes);
         Iterator<Banknote> iterator = allBanknotes.iterator();
@@ -273,11 +299,17 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                 iterator.remove();
             }
         }
-        if (findChange(allBanknotes.toArray(new Banknote[0]), remainingAmount.negate()) == null) {
+
+        //implement findChange method to tell whether it is able to make change
+        if (findChange(allBanknotes.toArray(new Banknote[0]), expectedChange) == null) {
+            //When it cannot find a right combination of banknotes, return false
             bronzeStation.banknoteStorage.load(allBanknotes.toArray(new Banknote[0]));
             return false;
         }
         else {
+            //When there is a right combination of banknotes
+
+            //get a right combination of banknotes and remove them from the stored banknotes
             ArrayList<Banknote> banknoteAsChange = new ArrayList<>(findChange(allBanknotes.toArray(new Banknote[0]), remainingAmount.negate()));
             Iterator<Banknote> iterator1 = allBanknotes.iterator();
             for (Banknote element2 : banknoteAsChange) {
@@ -290,6 +322,8 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                 }
             }
             bronzeStation.banknoteStorage.load(allBanknotes.toArray(new Banknote[0]));
+
+            //dispensing the right combination of change
             dispensedBanknotes = banknoteAsChange;
             for (Banknote banknote: banknoteAsChange) {
                 bronzeStation.banknoteOutput.receive(banknote);
