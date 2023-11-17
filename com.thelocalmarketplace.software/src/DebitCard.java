@@ -22,7 +22,7 @@ public class DebitCard {
 	private CardIssuer Bank;
 	private BufferedImage signature = new BufferedImage(1,1,1);
 	
-	public DebitCard(Card DebitCard, BigDecimal AvailableFunds,CardIssuer Bank, Calendar expiry) throws IOException {
+	public DebitCard(Card DebitCard, double AvailableFunds,CardIssuer Bank, Calendar expiry) throws IOException {
 		this.DebitCard = DebitCard;
 		this.Bank = Bank;
 		CardData data = null; //set it to null to placate the compiler, should have an instance of CardData by the time it's used
