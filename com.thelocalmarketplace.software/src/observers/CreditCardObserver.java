@@ -27,6 +27,7 @@ public interface CreditCardObserver extends CardReaderListener {
 	
 	public void transactionCompleted();
 	
-	public void creditCardPinAccepted();
-	
+	public void creditCardIsOverTheLimit();
+ 
+	public void systemAcceptsHoldNumber();
 }

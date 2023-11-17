@@ -18,7 +18,7 @@ public abstract class AbstractCardReader extends AbstractDevice<CardReaderListen
 	protected boolean cardIsInserted = false;
 	protected static final ThreadLocalRandom random = ThreadLocalRandom.current();
 	protected double probabilityOfSwipeFailure = 0.5;
-
+ 
 	@Override
 	public synchronized CardData swipe(Card card) throws IOException {
 		if(!isPoweredUp())
@@ -32,7 +32,7 @@ public abstract class AbstractCardReader extends AbstractDevice<CardReaderListen
 			notifyCardDataRead(data);
 	
 			return data;
-		}
+		} 
 	
 		throw new MagneticStripeFailureException();
 	}
