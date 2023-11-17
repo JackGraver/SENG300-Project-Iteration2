@@ -63,11 +63,13 @@ public class DebitCard {
 			}
 		}
 		
+		
+		
 		//find the most common output
 		String mostCommonOutput = "";
 		int keyOccurence = 0;
 		for(Map.Entry<CardData, String> current : outputs.entrySet()) {
-			if((current.getValue() > keyOccurence) {
+			if (Integer.valueOf(current.getValue())> keyOccurence) {
 				mostCommonOutput = current.getKey();
 				keyOccurence = current.getValue();
 			}
