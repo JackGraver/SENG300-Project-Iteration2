@@ -9,8 +9,9 @@ import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 
-public class AddOwnBags implements ElectronicScaleListener {
+public class AddOwnBags extends AddItemController implements ElectronicScaleListener {
 	boolean addBags = false;
+	private Mass expectedWeight;
 
 	public AddOwnBags() {
 		ElectronicScaleGold goldScale = new ElectronicScaleGold();
@@ -57,19 +58,25 @@ public class AddOwnBags implements ElectronicScaleListener {
 
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
-		// TODO Auto-generated method stub
+		if (addBags == true) {
+			expectedWeight = new Mass(getTotalWeight());
+			setTotalWeight(expectedWeight);
+			
+		}
 		
 	}
 
 	@Override
 	public void theMassOnTheScaleHasExceededItsLimit(IElectronicScale scale) {
-		// TODO Auto-generated method stub
+		System.out.println("Scale overload! Please remove excess weight.");
+		AddItemController.block();
 		
 	}
 
 	@Override
 	public void theMassOnTheScaleNoLongerExceedsItsLimit(IElectronicScale scale) {
-		// TODO Auto-generated method stub
+		System.out.println("You can continue scanning items.");
+		AddItemController.unblock();
 		
 	}
 
