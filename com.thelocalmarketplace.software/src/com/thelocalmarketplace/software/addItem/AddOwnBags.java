@@ -5,16 +5,25 @@ import java.util.Scanner;
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Mass;
+import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.scale.AbstractElectronicScale;
+import com.jjjwelectronics.scale.ElectronicScaleBronze;
 import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
+import com.jjjwelectronics.scale.ElectronicScaleSilver;
 import com.jjjwelectronics.scale.IElectronicScale;
 
-public class AddOwnBags extends AddItemController implements ElectronicScaleListener {
+public class AddOwnBags extends AbstractElectronicScale implements ElectronicScaleListener {
 	boolean addBags = false;
-	private Mass expectedWeight;
+	
 
 	public AddOwnBags() {
-		ElectronicScaleGold goldScale = new ElectronicScaleGold();
+		
+		super();
+		
+		ElectronicScaleGold electronicScaleGold = new ElectronicScaleGold();
+		ElectronicScaleSilver electronicScaleSilver = new ElectronicScaleSilver();
+		ElectronicScaleBronze electronicScaleBronze = new ElectronicScaleBronze();
 		
 	}
 	
@@ -59,9 +68,14 @@ public class AddOwnBags extends AddItemController implements ElectronicScaleList
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
 		if (addBags == true) {
-			expectedWeight = new Mass(getTotalWeight());
-			setTotalWeight(expectedWeight);
-			
+			try {
+				getCurrentMassOnTheScale();
+			} catch (OverloadedDevice e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			WeightDescrepency();
 		}
 		
 	}
@@ -77,6 +91,15 @@ public class AddOwnBags extends AddItemController implements ElectronicScaleList
 	public void theMassOnTheScaleNoLongerExceedsItsLimit(IElectronicScale scale) {
 		System.out.println("You can continue scanning items.");
 		AddItemController.unblock();
+		
+	}
+	
+	public boolean WeightDescrepency() {
+		System.out.println("Discrepency found!");
+		System.out.println("** Attendant has been notified **");
+		AddItemController.block();
+		
+		return true;
 		
 	}
 
