@@ -25,9 +25,4 @@ public interface CreditCardObserver extends CardReaderListener {
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data);
 	
-	public void transactionCompleted();
-	
-	public void creditCardIsOverTheLimit();
- 
-	public void systemAcceptsHoldNumber();
 }

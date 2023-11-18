@@ -19,26 +19,18 @@ import models.CreditCard;
 import observers.CreditCardObserver;
 import powerutility.PowerGrid;
 
-public class PayViaCreditCardViaSwipe implements CreditCardObserver {
+public class PayViaSwipeCreditBronze implements CreditCardObserver {
 
 	private BigDecimal totalCostOfGroceries;
-
-	private CardReaderBronze bronzeCardReader = new CardReaderBronze();
+	private BigDecimal creditLimit;
 	private CreditCard creditCard;
-	private Card card;
 	private CardData creditCardData;
 	private CardIssuer bank;
 	private long creditCardMaxHolds;
 
-	private String creditCardCompany;
-	private String creditCardNumber;
-	private String creditCardHolder;
-	private String creditCardCVV;
-
 	public boolean creditCardSwiped;
 	public boolean creditCardDataRead;
 	public boolean creditCardPaymentSuccessful;
-	public boolean creditCardOverLimit;
 	public boolean systemAcceptsHoldNumber;
 
 //	Scenario pay by credit
@@ -79,36 +71,30 @@ public class PayViaCreditCardViaSwipe implements CreditCardObserver {
 		this.creditCardSwiped = false;
 	}
 
-	@Override
-	public void transactionCompleted() {
-		this.creditCardPaymentSuccessful = true;
-	}
-
-	@Override
-	public void creditCardIsOverTheLimit() {
-		this.creditCardOverLimit = true;
-	}
-
-	@Override
-	public void systemAcceptsHoldNumber() {
-		this.systemAcceptsHoldNumber = true;
-	}
-
-	public PayViaCreditCardViaSwipe(CreditCard creditCard, CardData creditCardData, BigDecimal totalCostOfGroceries,
+	public PayViaSwipeCreditBronze(CreditCard creditCard, CardData creditCardData, BigDecimal totalCostOfGroceries,
 			BigDecimal creditLimitInBigDecimal) throws OverCreditException, IOException, HoldNotAcceptedException {
 
-		bronzeCardReader.plugIn(PowerGrid.instance());
-		bronzeCardReader.turnOn();
-
+		/**
+		 * this initializes the credit card, and the card data variable and sets the
+		 * total cost of groceries
+		 */
 		setTotalCostOfGroceries(totalCostOfGroceries);
 		this.creditCard = creditCard;
+		this.creditCardData = creditCardData;
+		this.creditLimit = creditLimitInBigDecimal;
 
+		/**
+		 * Notifies that a card has been swiped
+		 */
 		aCardHasBeenSwiped();
 		customerSwipesCard(creditCard, creditCardData, creditLimitInBigDecimal.doubleValue());
-		if (getCreditCardData() != null) {
-			systemAcceptsHoldNumber();
-			systemAcceptsHoldNumber(creditLimitInBigDecimal);
-		}
+
+		/**
+		 * If the credit card data is not null, it checks if the system accepts the hold
+		 * number
+		 */
+		systemAcceptsHoldNumber(creditLimitInBigDecimal);
+
 	}
 
 	/**
@@ -120,7 +106,6 @@ public class PayViaCreditCardViaSwipe implements CreditCardObserver {
 			throws IOException {
 
 		this.creditCardData = creditCardData;
-		theDataFromACardHasBeenRead(this.creditCardData);
 		this.creditCardMaxHolds = creditCard.getMaxHolds();
 		this.bank = new CardIssuer(this.creditCardData.getType(), this.creditCardMaxHolds);
 
@@ -135,12 +120,10 @@ public class PayViaCreditCardViaSwipe implements CreditCardObserver {
 	 */
 	private void systemAcceptsHoldNumber(BigDecimal creditLimit) throws OverCreditException, HoldNotAcceptedException {
 
-		if (this.systemAcceptsHoldNumber == true) {
+		if (getCreditCardData() != null) {
 			systemSignalsTheAmountOfCreditAvailable(totalCostOfGroceries, creditLimit);
 			System.out.println("Transaction Successful");
-			transactionCompleted();
 		} else {
-			creditCardIsOverTheLimit();
 			this.bank.block(this.creditCardData.getNumber());
 			throw new HoldNotAcceptedException();
 
@@ -155,6 +138,7 @@ public class PayViaCreditCardViaSwipe implements CreditCardObserver {
 	 */
 	public void systemSignalsTheAmountOfCreditAvailable(BigDecimal totalCostOfGroceries,
 			BigDecimal creditLimitInBigDecimal) throws OverCreditException {
+		theDataFromACardHasBeenRead(this.creditCardData);
 		if (creditLimitInBigDecimal.compareTo(totalCostOfGroceries) == 1
 				|| creditLimitInBigDecimal.compareTo(totalCostOfGroceries) == 0) {
 			this.creditCard.setCreditLimit(creditLimitInBigDecimal.subtract(totalCostOfGroceries));
@@ -167,7 +151,6 @@ public class PayViaCreditCardViaSwipe implements CreditCardObserver {
 	public void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
 		this.totalCostOfGroceries = totalCostOfGroceries;
 	}
-
 
 	public CardData getCreditCardData() {
 		return this.creditCardData;

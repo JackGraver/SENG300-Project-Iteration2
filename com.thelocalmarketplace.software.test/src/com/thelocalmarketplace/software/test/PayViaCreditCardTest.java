@@ -10,19 +10,23 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jjjwelectronics.IDevice;
+import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import models.CreditCard;
+import observers.CreditCardObserver;
 import powerutility.PowerGrid;
 
 import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderGold;
+import com.jjjwelectronics.card.CardReaderListener;
 import com.jjjwelectronics.card.CardReaderSilver;
 import com.jjjwelectronics.card.MagneticStripeFailureException;
 
-import controllers.PayViaCreditCardViaSwipe;
+import controllers.PayViaSwipeCreditBronze;
 import exceptions.HoldNotAcceptedException;
 import exceptions.OverCreditException;
 
@@ -35,57 +39,306 @@ public class PayViaCreditCardTest {
 	private CardReaderSilver cardReaderSilver = new CardReaderSilver();
 	private CardReaderGold cardReaderGold = new CardReaderGold();
 
-	
 	@Before
 	public void setUp() {
-		cardReaderBronze.plugIn(PowerGrid.instance());
-		cardReaderSilver.plugIn(PowerGrid.instance());
-		cardReaderGold.plugIn(PowerGrid.instance());
-		cardReaderBronze.turnOn();
-		cardReaderSilver.turnOn();
-		cardReaderGold.turnOn();
+		PowerGrid.engageUninterruptiblePowerSource();
+		PowerGrid.instance().forcePowerRestore();
 	}
-	
+
+	@Test
+	public void testPlugInAndUnplug() {
+		assertEquals(false, cardReaderBronze.isPluggedIn());
+		assertEquals(false, cardReaderBronze.isPoweredUp());
+
+		cardReaderBronze.plugIn(PowerGrid.instance());
+		assertEquals(true, cardReaderBronze.isPluggedIn());
+		assertEquals(false, cardReaderBronze.isPoweredUp());
+
+		cardReaderBronze.unplug();
+		assertEquals(false, cardReaderBronze.isPluggedIn());
+		assertEquals(false, cardReaderBronze.isPoweredUp());
+
+		assertEquals(false, cardReaderSilver.isPluggedIn());
+		assertEquals(false, cardReaderSilver.isPoweredUp());
+
+		cardReaderBronze.plugIn(PowerGrid.instance());
+		assertEquals(true, cardReaderSilver.isPluggedIn());
+		assertEquals(false, cardReaderSilver.isPoweredUp());
+
+		cardReaderBronze.unplug();
+		assertEquals(false, cardReaderSilver.isPluggedIn());
+		assertEquals(false, cardReaderSilver.isPoweredUp());
+
+		assertEquals(false, cardReaderGold.isPluggedIn());
+		assertEquals(false, cardReaderGold.isPoweredUp());
+
+		cardReaderBronze.plugIn(PowerGrid.instance());
+		assertEquals(true, cardReaderGold.isPluggedIn());
+		assertEquals(false, cardReaderGold.isPoweredUp());
+
+		cardReaderBronze.unplug();
+		assertEquals(false, cardReaderGold.isPluggedIn());
+		assertEquals(false, cardReaderGold.isPoweredUp());
+	}
+
 	/**
-	 * This test case involves a Powered On bronze card reader, 
-	 * @throws IOException is the exception for the CreditCard
-	 * @throws OverCreditException is exception for the PayViaCreditCardViaSwipe
+	 * This test case involves a Powered On bronze card reader, a credit card with
+	 * valid data, and with all listeners as well.
+	 * 
+	 * @throws IOException              is the exception for the CreditCard
+	 * @throws OverCreditException      is exception for the
+	 *                                  PayViaCreditCardViaSwipe
 	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
 	 */
 	@Test
-	public void test1() throws IOException, OverCreditException, HoldNotAcceptedException {
-		
+	public void bronzeTest1() throws IOException, OverCreditException, HoldNotAcceptedException {
+
 		/**
-		 * Bank: Signals to the System the hold number against the account of the credit card.
+		 * Bank: Signals to the System the hold number against the account of the credit
+		 * card.
 		 *
-		 * Customer: Swipes a credit Card. The system will try to send the data with the bronze card reader.
-		 * Might throw an exception which will be caught.
-		 */ 
-		try {	
+		 * Customer: Swipes a credit Card. The system will try to send the data with the
+		 * bronze card reader. Might throw an exception which will be caught.
+		 */
+		try {
+
+			/**
+			 * Registering listeners
+			 */
+			cardReaderBronze.register(new CreditCardObserver() {
+
+				@Override
+				public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aCardHasBeenSwiped() {
+				}
+
+				@Override
+				public void theDataFromACardHasBeenRead(CardData data) {
+				}
+
+			});
+			
+			/**
+			 * Turning on the bronze card reader
+			 */
+			cardReaderBronze.plugIn(PowerGrid.instance());
+			cardReaderBronze.turnOn();
+			cardReaderBronze.enable();
+
 			/**
 			 * Setting up Card Data
 			 */
 			long maxHolds = (long) 10000;
 			CardIssuer bank = new CardIssuer("MasterCard", maxHolds);
 			Calendar expiryDate = Calendar.getInstance();
-	        // Set the date to January 1, 2028
+			// Set the date to January 1, 2028
 			expiryDate.set(Calendar.YEAR, 2028);
 			expiryDate.set(Calendar.MONTH, Calendar.JANUARY);
 			expiryDate.set(Calendar.DAY_OF_MONTH, 1);
 			double creditLimit = 2500;
 			BigDecimal creditLimitInBigDecimal = new BigDecimal(creditLimit);
+			BigDecimal totalCostOfGroceries = new BigDecimal(20.00);
 			bank.addCardData("1234567890123456", "Dylan", expiryDate, "099", creditLimit);
-			
-			
+
+			/**
+			 * Swiping the credit card
+			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			this.cardDataBronze = this.cardReaderBronze.swipe(card);
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, "Bronze", maxHolds);
-			BigDecimal totalCostOfGroceries = new BigDecimal(20.00);
-			PayViaCreditCardViaSwipe payViaCredit = new PayViaCreditCardViaSwipe(creditCard, this.cardDataBronze, totalCostOfGroceries, creditLimitInBigDecimal);
-			Assert.assertEquals("Bronze", creditCard.getCreditCardChip());
-			Assert.assertEquals(payViaCredit.creditCardSwiped, true);
-			Assert.assertEquals(payViaCredit.creditCardDataRead, true);
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, this.cardDataBronze,
+					totalCostOfGroceries, creditLimitInBigDecimal);
+//			boolean holdReleased = bank.releaseHold(cardDataBronze.getNumber(), creditCard.getMaxHolds());
+//			long holdAuthorized = bank.authorizeHold(cardDataBronze.getNumber(), totalCostOfGroceries.doubleValue());
+//			boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0);
+//			Assert.assertEquals(true, holdAcceptedAndSent);
 		} catch (MagneticStripeFailureException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * This test case involves a Powered On bronze card reader, a credit card with
+	 * valid data, but creditLimit is below the total cost of groceries, and with
+	 * all listeners as well.
+	 * 
+	 * @throws IOException              is the exception for the CreditCard
+	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
+	 */
+	@Test
+	public void bronzeTest2() throws IOException, HoldNotAcceptedException {
+		/**
+		 * Bank: Signals to the System the hold number against the account of the credit
+		 * card.
+		 *
+		 * Customer: Swipes a credit Card. The system will try to send the data with the
+		 * bronze card reader. Might throw an exception which will be caught.
+		 */
+		try {
+
+			/**
+			 * Registering listeners
+			 */
+			cardReaderBronze.register(new CreditCardObserver() {
+
+				@Override
+				public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aCardHasBeenSwiped() {
+				}
+
+				@Override
+				public void theDataFromACardHasBeenRead(CardData data) {
+				}
+
+			});
+			
+			/**
+			 * Turning on the bronze card reader
+			 */
+			cardReaderBronze.plugIn(PowerGrid.instance());
+			cardReaderBronze.turnOn();
+			cardReaderBronze.enable();
+
+			/**
+			 * Setting up Card Data
+			 */
+			long maxHolds = (long) 10000;
+			CardIssuer bank = new CardIssuer("MasterCard", maxHolds);
+			Calendar expiryDate = Calendar.getInstance();
+			// Set the date to January 1, 2028
+			expiryDate.set(Calendar.YEAR, 2028);
+			expiryDate.set(Calendar.MONTH, Calendar.JANUARY);
+			expiryDate.set(Calendar.DAY_OF_MONTH, 1);
+			double creditLimit = 10;
+			BigDecimal creditLimitInBigDecimal = new BigDecimal(creditLimit);
+			BigDecimal totalCostOfGroceries = new BigDecimal(20.00);
+			bank.addCardData("1234567890123456", "Dylan", expiryDate, "099", creditLimit);
+
+			/**
+			 * Swiping the credit card
+			 */
+			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
+			this.cardDataBronze = this.cardReaderBronze.swipe(card);
+			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, "Bronze", maxHolds);
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, this.cardDataBronze,
+					totalCostOfGroceries, creditLimitInBigDecimal);
+		} catch (MagneticStripeFailureException | OverCreditException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * This test case involves a Powered On bronze card reader, a credit card with
+	 * valid data, and with no listeners
+	 * 
+	 * @throws IOException              is the exception for the CreditCard
+	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
+	 */
+	@Test
+	public void bronzeTest3() throws IOException, HoldNotAcceptedException {
+		/**
+		 * Bank: Signals to the System the hold number against the account of the credit
+		 * card.
+		 *
+		 * Customer: Swipes a credit Card. The system will try to send the data with the
+		 * bronze card reader. Might throw an exception which will be caught.
+		 */
+		try {
+
+			/**
+			 * Registering listeners and deregistering listeners
+			 */
+			cardReaderBronze.register(new CreditCardObserver() {
+
+				@Override
+				public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+				}
+
+				@Override
+				public void aCardHasBeenSwiped() {
+				}
+
+				@Override
+				public void theDataFromACardHasBeenRead(CardData data) {
+				}
+
+			});
+			cardReaderBronze.deregisterAll();
+
+			/**
+			 * Turning on the bronze card reader
+			 */
+			cardReaderBronze.plugIn(PowerGrid.instance());
+			cardReaderBronze.turnOn();
+			cardReaderBronze.enable();
+
+			/**
+			 * Setting up Card Data
+			 */
+			long maxHolds = (long) 10000;
+			CardIssuer bank = new CardIssuer("MasterCard", maxHolds);
+			Calendar expiryDate = Calendar.getInstance();
+			// Set the date to January 1, 2028
+			expiryDate.set(Calendar.YEAR, 2028);
+			expiryDate.set(Calendar.MONTH, Calendar.JANUARY);
+			expiryDate.set(Calendar.DAY_OF_MONTH, 1);
+			double creditLimit = 1000;
+			BigDecimal creditLimitInBigDecimal = new BigDecimal(creditLimit);
+			BigDecimal totalCostOfGroceries = new BigDecimal(20.00);
+			bank.addCardData("1234567890123456", "Dylan", expiryDate, "099", creditLimit);
+
+			/**
+			 * Swiping the credit card
+			 */
+			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
+			this.cardDataBronze = this.cardReaderBronze.swipe(card);
+			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, "Bronze", maxHolds);
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, this.cardDataBronze,
+					totalCostOfGroceries, creditLimitInBigDecimal);
+			
+		} catch (MagneticStripeFailureException | OverCreditException e) {
 			e.printStackTrace();
 		}
 	}

@@ -16,7 +16,7 @@ import powerutility.PowerGrid;
 
 public class StartSession {
 	
-	private PayViaCreditCardViaSwipe cc;
+	private PayViaSwipeCreditBronze cc;
 //	private AbstractSelfCheckoutStation selfCheckoutStation;
 //	// Precondition: System is not in a session
 //	private boolean inSession = false;
