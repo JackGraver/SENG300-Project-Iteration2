@@ -1,3 +1,10 @@
+/* 
+ * Christopher Thomson - 30186596
+ * 
+ * 
+ * 
+ */
+
 package com.thelocalmarketplace.software.addItem;
 
 import java.util.Scanner;
