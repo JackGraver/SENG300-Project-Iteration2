@@ -30,8 +30,6 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 
 	public boolean creditCardSwiped;
 	public boolean creditCardDataRead;
-	public boolean creditCardPaymentSuccessful;
-	public boolean systemAcceptsHoldNumber;
 
 //	Scenario pay by credit
 //	1. Customer: Swipes a credit Card
@@ -68,7 +66,6 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data) {
 		this.creditCardDataRead = true;
-		this.creditCardSwiped = false;
 	}
 
 	public PayViaSwipeCreditBronze(CreditCard creditCard, CardData creditCardData, BigDecimal totalCostOfGroceries,
@@ -78,10 +75,12 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 		 * this initializes the credit card, and the card data variable and sets the
 		 * total cost of groceries
 		 */
-		setTotalCostOfGroceries(totalCostOfGroceries);
+
 		this.creditCard = creditCard;
 		this.creditCardData = creditCardData;
 		this.creditLimit = creditLimitInBigDecimal;
+		this.creditCardMaxHolds = creditCard.getMaxHolds();
+		setTotalCostOfGroceries(totalCostOfGroceries);
 
 		/**
 		 * Notifies that a card has been swiped
@@ -107,7 +106,7 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 
 		this.creditCardData = creditCardData;
 		this.creditCardMaxHolds = creditCard.getMaxHolds();
-		this.bank = new CardIssuer(this.creditCardData.getType(), this.creditCardMaxHolds);
+		this.bank = creditCard.getBank();
 
 	}
 
@@ -119,14 +118,14 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 	 * @throws HoldNotAcceptedException
 	 */
 	private void systemAcceptsHoldNumber(BigDecimal creditLimit) throws OverCreditException, HoldNotAcceptedException {
-
-		if (getCreditCardData() != null) {
+		boolean holdReleased = bank.releaseHold(this.creditCardData.getNumber(), creditCard.getMaxHolds());
+		long holdAuthorized = bank.authorizeHold(this.creditCardData.getNumber(), totalCostOfGroceries.doubleValue());
+		boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0);
+		if (holdAcceptedAndSent == true) {
 			systemSignalsTheAmountOfCreditAvailable(totalCostOfGroceries, creditLimit);
 			System.out.println("Transaction Successful");
 		} else {
-			this.bank.block(this.creditCardData.getNumber());
 			throw new HoldNotAcceptedException();
-
 		}
 	}
 
@@ -150,11 +149,6 @@ public class PayViaSwipeCreditBronze implements CreditCardObserver {
 
 	public void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
 		this.totalCostOfGroceries = totalCostOfGroceries;
-	}
-
-	public CardData getCreditCardData() {
-		return this.creditCardData;
-
 	}
 
 }

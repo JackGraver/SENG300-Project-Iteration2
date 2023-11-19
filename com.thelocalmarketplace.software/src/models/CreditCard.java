@@ -12,20 +12,14 @@ import com.thelocalmarketplace.hardware.external.CardIssuer;
 public class CreditCard {
 
 	private Card card;
-	private CardSwipeData creditCardData;
 	private long maxHolds;
 	private BigDecimal creditLimit;
-	private String creditCardCompany;
-	private String creditCardNumber;
-	private String creditCardHolder;
-	private String creditCardCVV;
-	private String creditCardChip;
+	private CardIssuer bank;
 
-	public CreditCard(Card card, BigDecimal creditLimit, String creditCardChip, long maxHolds) throws IOException {
+	public CreditCard(Card card, BigDecimal creditLimit, long maxHolds, CardIssuer bank) throws IOException {
 		this.maxHolds = maxHolds;
-		
-		this.creditCardChip = creditCardChip;
 		this.card = card;
+		this.bank = bank;
 		setCreditLimit(creditLimit); 
 	}
 
@@ -44,9 +38,9 @@ public class CreditCard {
 	public Card getCard() {
 		return this.card;
 	}
-
-	public String getCreditCardChip() {
-		return this.creditCardChip;
+	
+	public CardIssuer getBank() {
+		return this.bank;
 	}
 
 }
