@@ -34,6 +34,10 @@ public class AddItemViaHandheldTest {
 
     AddItemViaHandheld toTestListener;
 
+
+    Barcode barcode1 = new Barcode(new Numeral[]{Numeral.one, Numeral.two});
+    Barcode barcode2 = new Barcode(new Numeral[]{Numeral.three, Numeral.four});
+
     /**
      * Test setup class
      */
@@ -96,10 +100,7 @@ public class AddItemViaHandheldTest {
 
 
     @Test
-    public void add() {
-        Barcode barcode1 = new Barcode(new Numeral[]{Numeral.one, Numeral.two});
-        Barcode barcode2 = new Barcode(new Numeral[]{Numeral.three, Numeral.four});
-
+    public void scanItemNormal() {
         BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
         BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
 
@@ -112,4 +113,27 @@ public class AddItemViaHandheldTest {
 
         checkoutStation.handheldScanner.scan(item);
     }
+
+    @Test
+    public void scanNullBarcode() {
+        Barcode barcodeNull = null;
+        BarcodedProduct nullBarcodeProduct = new BarcodedProduct(barcodeNull, "Null Barcode Itemn", 0, 1);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(nullBarcodeProduct.getBarcode(), nullBarcodeProduct);
+
+        BarcodedItem nullBarcodeItem = new BarcodedItem(barcodeNull, new Mass(5));
+        checkoutStation.handheldScanner.scan(nullBarcodeItem);
+    }
+
+    @Test
+    public void scanNoSession() {
+        BarcodedItem item = new BarcodedItem(barcode1, new Mass(5));
+        checkoutStation.handheldScanner.scan(item);
+    }
+
+    @Test
+    public void testBlock() {
+        //?
+    }
+
 }

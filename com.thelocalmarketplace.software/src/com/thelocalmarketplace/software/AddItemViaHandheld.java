@@ -41,6 +41,7 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
     public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 
         //not allow scan if customer session in progress already
+            //Need to check if StartSession inSession variable is true, either needs to be static or some type of implementation like singleton
 
         //following steps from use case:
         //Block?
