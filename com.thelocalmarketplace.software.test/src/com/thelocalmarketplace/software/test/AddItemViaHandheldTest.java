@@ -21,6 +21,7 @@ import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
+import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItemViaHandheld;
 
 import powerutility.PowerGrid;
@@ -57,7 +58,7 @@ public class AddItemViaHandheldTest {
         // checkoutStationSilver = new SelfCheckoutStationSilver();
         checkoutStation = new SelfCheckoutStationGold();
 
-        toTestListener = new AddItemViaHandheld(checkoutStation.handheldScanner);
+        // toTestListener = new AddItemViaHandheld(checkoutStation.handheldScanner);
         checkoutStation.handheldScanner.register(toTestListener);
         
 
@@ -76,7 +77,17 @@ public class AddItemViaHandheldTest {
         //Activate Gold (primary test) checkout station
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
-        
+
+        // Barcode barcode1 = new Barcode(new Numeral[]{Numeral.one, Numeral.two});
+        // Barcode barcode2 = new Barcode(new Numeral[]{Numeral.three, Numeral.four});
+
+        // BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        // BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        // ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        // ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+        // System.out.println("test: " + ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode1));
+
         //Instantiate listener stub for BarcodeScanner and attach to scanner
         // listener = new BarcodeScannerListenerStub();
         // checkoutStation.handheldScanner.register(listener);
@@ -86,51 +97,19 @@ public class AddItemViaHandheldTest {
 
     @Test
     public void add() {
-        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two, Numeral.three});
+        Barcode barcode1 = new Barcode(new Numeral[]{Numeral.one, Numeral.two});
+        Barcode barcode2 = new Barcode(new Numeral[]{Numeral.three, Numeral.four});
+
+        BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+        // System.out.println("test: " + ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode1));
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
         BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
 
         checkoutStation.handheldScanner.scan(item);
     }
-}
-
-/**
- * BarcodeScannerListener stub
- */
-class BarcodeScannerListenerStub implements BarcodeScannerListener {
-
-    public boolean itemScanned;
-    public IBarcodeScanner barcodeScannerUsed;
-    public Barcode barcodeScanned;
-
-    @Override
-    public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'aDeviceHasBeenEnabled'");
-    }
-
-    @Override
-    public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'aDeviceHasBeenDisabled'");
-    }
-
-    @Override
-    public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'aDeviceHasBeenTurnedOn'");
-    }
-
-    @Override
-    public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'aDeviceHasBeenTurnedOff'");
-    }
-
-    @Override
-    public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
-        itemScanned = true;
-        barcodeScannerUsed = barcodeScanner;
-        barcodeScanned = barcode;
-    }
-
 }
