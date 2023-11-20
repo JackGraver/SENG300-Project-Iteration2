@@ -1,4 +1,4 @@
-package com.thelocalmarketplace.software;
+package com.thelocalmarketplace.software.AddItem;
 
 import java.math.BigInteger;
 
