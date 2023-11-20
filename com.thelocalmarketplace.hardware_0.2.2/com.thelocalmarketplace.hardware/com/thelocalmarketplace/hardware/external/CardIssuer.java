@@ -20,11 +20,11 @@ import ca.ucalgary.seng300.simulation.SimulationException;
  */
 public class CardIssuer {
 	private String name;
-	private long maximumHoldCount;
+	private long maximumHoldCount; 
 
 	/**
 	 * Create a card provider.
-	 * 
+	 *  
 	 * @param name
 	 *            The company's name.
 	 * @param maximumHoldCount
@@ -104,7 +104,7 @@ public class CardIssuer {
 			return total;
 		}
 	}
-
+ 
 	private HashMap<String, CardRecord> database = new HashMap<>();
 
 	private boolean isValidCardNumber(String number) {
@@ -169,7 +169,7 @@ public class CardIssuer {
 	 * @param cvv
 	 *            The security code on the back of the card.
 	 * @param amount
-	 *            For a credit card, this represents the credit limit. For a debit
+	 *            For a credit  card, this represents the credit limit. For a debit
 	 *            card, this is how much money is available. (Yes, it is a
 	 *            simplistic simulation.)
 	 */

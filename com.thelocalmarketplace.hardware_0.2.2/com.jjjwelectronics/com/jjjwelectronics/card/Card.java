@@ -36,7 +36,8 @@ public final class Card {
 	private int failedTrials = 0;
 	private boolean isBlocked;
 
-	/**
+	
+	/** 
 	 * Create a card instance.
 	 * 
 	 * @param type
