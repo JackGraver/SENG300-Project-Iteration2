@@ -77,35 +77,35 @@ public class ReceiptPrinterControllerTest {
     stationGold.plugIn(PowerGrid.instance());
     stationGold.turnOn();
     
-//    SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
-//    SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
-//    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
-//    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
-//    SelfCheckoutStationSilver.configureCoinDispenserCapacity(5);
-//    SelfCheckoutStationSilver.configureCoinTrayCapacity(5);
-//    SelfCheckoutStationSilver.configureScaleMaximumWeight(5);
-//    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
-//    SelfCheckoutStationSilver.configureScaleSensitivity(9);
-//    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(5);
-//    
-//    stationSilver = new SelfCheckoutStationSilver();
-//    stationSilver.plugIn(PowerGrid.instance());
-//    stationSilver.turnOn();
-//    
-//    SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
-//    SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
-//    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
-//    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
-//    SelfCheckoutStationBronze.configureCoinDispenserCapacity(5);
-//    SelfCheckoutStationBronze.configureCoinTrayCapacity(5);
-//    SelfCheckoutStationBronze.configureScaleMaximumWeight(5);
-//    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
-//    SelfCheckoutStationBronze.configureScaleSensitivity(9);
-//    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(5);
-//    
-//    stationBronze = new SelfCheckoutStationBronze();
-//    stationBronze.plugIn(PowerGrid.instance());
-//    stationBronze.turnOn();
+    SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
+    SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
+    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
+    SelfCheckoutStationSilver.configureCoinDispenserCapacity(5);
+    SelfCheckoutStationSilver.configureCoinTrayCapacity(5);
+    SelfCheckoutStationSilver.configureScaleMaximumWeight(5);
+    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
+    SelfCheckoutStationSilver.configureScaleSensitivity(9);
+    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(5);
+    
+    stationSilver = new SelfCheckoutStationSilver();
+    stationSilver.plugIn(PowerGrid.instance());
+    stationSilver.turnOn();
+    
+    SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+    SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
+    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
+    SelfCheckoutStationBronze.configureCoinDispenserCapacity(5);
+    SelfCheckoutStationBronze.configureCoinTrayCapacity(5);
+    SelfCheckoutStationBronze.configureScaleMaximumWeight(5);
+    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
+    SelfCheckoutStationBronze.configureScaleSensitivity(9);
+    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(5);
+    
+    stationBronze = new SelfCheckoutStationBronze();
+    stationBronze.plugIn(PowerGrid.instance());
+    stationBronze.turnOn();
        
     }
     
@@ -118,18 +118,18 @@ public class ReceiptPrinterControllerTest {
      */
     
     @Test public void testReceiptPrinterController() {
-    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationGold);
+    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationBronze);
     	assertNotNull(rpc);
     }
     
     @Test public void testPrintReceipt1() {
-    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationGold);
+    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationBronze);
     	rpc.printReceipt("T");
     	assertEquals("T", rpc.getPrintedReceipt());
     }
     
     @Test public void testPrintReceipt2() {
-    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationGold);
+    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationBronze);
     	rpc.printReceipt("Test");
     	assertEquals("Test", rpc.getPrintedReceipt());
     }
@@ -139,7 +139,7 @@ public class ReceiptPrinterControllerTest {
     	assertEquals("\nTest", rpc.getPrintedReceipt());
     }
     @Test public void testPrintReceipt4() {
-    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationGold);
+    	ReceiptPrinterController rpc = new ReceiptPrinterController(stationSilver);
     	rpc.printReceipt("\nTest\nshould\nwork");
     	assertEquals("\nTest\nshould\nwork", rpc.getPrintedReceipt());
     }

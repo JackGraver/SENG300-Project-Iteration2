@@ -5,41 +5,41 @@ import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.printer.ReceiptPrinterListener;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 
 public class ReceiptPrinterController implements ReceiptPrinterListener {
 
-	public SelfCheckoutStationGold scs;
+	public AbstractSelfCheckoutStation scs;
 	private String receiptToPrint;
 	private AttendantSimulation attendant;
 	private String printedReceipt;
 
-	public ReceiptPrinterController(SelfCheckoutStationGold scs) {
+	public ReceiptPrinterController(AbstractSelfCheckoutStation scs) {
 		this.scs = scs;
 		this.scs.printer.register(this);
 		this.attendant = new AttendantSimulation(this);
 	}
 
 	public void printReceipt(String receipt) {
-			setReceiptToPrint(receipt);
-			for (int i = 0; i < receiptToPrint.length(); i++) {
-				try {
-					scs.printer.print(receiptToPrint.charAt(i));
+		setReceiptToPrint(receipt);
+		for (int i = 0; i < receiptToPrint.length(); i++) {
+			try {
+				scs.printer.print(receiptToPrint.charAt(i));
 
-				} catch (EmptyDevice e) {
-					if (e.getMessage().equals("There is no paper in the printer.")) {
-						thePrinterIsOutOfPaper();
-					} else {
-						thePrinterIsOutOfInk();
+			} catch (EmptyDevice e) {
+				if (e.getMessage().equals("There is no paper in the printer.")) {
+					thePrinterIsOutOfPaper();
+				} else {
+					thePrinterIsOutOfInk();
 
-					}
-				} catch (OverloadedDevice e) {
-
-					System.out.println("Line too long");
 				}
+			} catch (OverloadedDevice e) {
 
+				System.out.println("Line too long");
 			}
-		
+
+		}
+
 		scs.printer.cutPaper();
 		this.setPrintedReceipt(getReceiptToPrint().charAt(0) + scs.printer.removeReceipt());
 
