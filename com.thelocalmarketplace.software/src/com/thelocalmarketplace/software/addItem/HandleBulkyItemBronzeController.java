@@ -1,6 +1,6 @@
 package com.thelocalmarketplace.software.addItem;
 
-import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +11,19 @@ import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.AbstractElectronicScale;
-import com.jjjwelectronics.scale.ElectronicScaleGold;
+import com.jjjwelectronics.scale.ElectronicScaleBronze;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
-import com.jjjwelectronics.scanner.BarcodeScannerGold;
+import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
-public class HandleBulkyItemGoldController implements BarcodeScannerListener, ElectronicScaleListener{
-	private final SelfCheckoutStationGold goldStation;
+public class HandleBulkyItemBronzeController implements BarcodeScannerListener, ElectronicScaleListener{
+	private final SelfCheckoutStationBronze scs;
 	private boolean approval;
 	private long totalCost;
 	private double totalWeight;
@@ -51,8 +51,8 @@ public class HandleBulkyItemGoldController implements BarcodeScannerListener, El
 	 * the system will then add the weight of the item to the total weight
 	 */
 
-	public HandleBulkyItemGoldController(SelfCheckoutStationGold checkout) {
-		goldStation = checkout;
+	public HandleBulkyItemBronzeController(SelfCheckoutStationBronze checkout) {
+		scs = checkout;
 		approval = false;
 		totalWeight = 0;
 		isBlocked = false;
@@ -108,7 +108,7 @@ public class HandleBulkyItemGoldController implements BarcodeScannerListener, El
 		Mass After = null;
 		
 		 try {
-				After = ((AbstractElectronicScale) goldStation.baggingArea).getCurrentMassOnTheScale();
+				After = ((AbstractElectronicScale) scs.baggingArea).getCurrentMassOnTheScale();
 			} catch (OverloadedDevice e) {
 				e.printStackTrace();
 			}
@@ -123,7 +123,7 @@ public class HandleBulkyItemGoldController implements BarcodeScannerListener, El
 		 
        
          BigInteger difference = weight.inMicrograms().subtract(After.inMicrograms()).abs();
-         BigInteger sens = goldStation.baggingArea.getSensitivityLimit().inMicrograms();
+         BigInteger sens = scs.baggingArea.getSensitivityLimit().inMicrograms();
 
          if (difference.compareTo(sens) > 0) {
  			return true;
