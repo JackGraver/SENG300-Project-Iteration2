@@ -9,7 +9,7 @@ import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
 import com.jjjwelectronics.card.CardReaderSilver;
 import com.jjjwelectronics.card.CardReaderListener;
-import com.jjjwelectronics.card.CardReaderSilver;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import exceptions.HoldNotAcceptedException;
@@ -40,7 +40,9 @@ public class PayViaSwipeCreditSilver implements CardReaderListener {
 	private CardIssuer bank;
 	private Card card;
 	private CardReaderSilver cardReaderSilver = new CardReaderSilver();
-
+	private SelfCheckoutStationSilver SilverStation;
+	private ReceiptPrinterController receiptPrinter;
+	
 	public boolean creditCardSwiped;
 	public boolean creditCardDataRead;
 
@@ -79,19 +81,22 @@ public class PayViaSwipeCreditSilver implements CardReaderListener {
 	 * @throws HoldNotAcceptedException is the exception for when the bank does not accept the hold
 	 * @throws PriceIsZeroOrNegativeException is the exception for when a price is zero or negative
 	 */
-	public PayViaSwipeCreditSilver(CreditCard creditCard, BigDecimal totalCostOfGroceries)
+	public PayViaSwipeCreditSilver(CreditCard creditCard, BigDecimal totalCostOfGroceries,  SelfCheckoutStationSilver SilverStation)
 			throws OverCreditException, IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
-		 * Turning on the card reader
+		 * Turning on the card reader and connecting it to the station, along with the printer
 		 */
+		this.SilverStation = SilverStation;
 		cardReaderSilver.plugIn(PowerGrid.instance());
 		cardReaderSilver.turnOn();
 		cardReaderSilver.enable();
-
+		this.receiptPrinter = new ReceiptPrinterController(SilverStation);
+		
 		/**
 		 * Registering listeners
 		 */
+		this.SilverStation.cardReader.register(this);
 		cardReaderSilver.register(this);
 
 		/**
@@ -129,6 +134,7 @@ public class PayViaSwipeCreditSilver implements CardReaderListener {
 		 */
 		systemAcceptsHoldNumber(this.creditLimit);
 
+		
 	}
 
 	/**
@@ -142,8 +148,7 @@ public class PayViaSwipeCreditSilver implements CardReaderListener {
 	private void systemAcceptsHoldNumber(BigDecimal creditLimit) throws OverCreditException, HoldNotAcceptedException {
 		boolean holdReleased = bank.releaseHold(this.creditCardData.getNumber(), creditCard.getMaxHolds());
 		long holdAuthorized = bank.authorizeHold(this.creditCardData.getNumber(), totalCostOfGroceries.doubleValue());
-		boolean postTransaction = bank.postTransaction(this.creditCardData.getNumber(), creditCard.getMaxHolds(), totalCostOfGroceries.doubleValue());
-		boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0 && postTransaction == true);
+		boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0);
 		if (holdAcceptedAndSent == true) {
 			systemSignalsTheAmountOfCreditAvailable(totalCostOfGroceries, creditLimit);
 		} else if (creditLimit.compareTo(totalCostOfGroceries) == -1) {
@@ -159,19 +164,20 @@ public class PayViaSwipeCreditSilver implements CardReaderListener {
 	 * 
 	 * @throws OverCreditException
 	 */
-	public void systemSignalsTheAmountOfCreditAvailable(BigDecimal totalCostOfGroceries,
+	private void systemSignalsTheAmountOfCreditAvailable(BigDecimal totalCostOfGroceries,
 			BigDecimal creditLimitInBigDecimal) throws OverCreditException {
 		theDataFromACardHasBeenRead(this.creditCardData);
 		this.creditCard.setCreditLimit(creditLimitInBigDecimal.subtract(totalCostOfGroceries));
-		System.out.println("Transaction Successful");
-
+		System.out.println("Transaction Successful");	
+		this.receiptPrinter.printReceipt("Receipt\n" + "Total $" + totalCostOfGroceries + "\n" + "By Credit");
+		setTotalCostOfGroceries(creditLimitInBigDecimal.subtract(totalCostOfGroceries));
 	}
 
 	/**
 	 * Sets the total cost of groceries
 	 * @param totalCostOfGroceries is the total cost of groceries
 	 */
-	public void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
+	private void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
 		this.totalCostOfGroceries = totalCostOfGroceries;
 	}
 

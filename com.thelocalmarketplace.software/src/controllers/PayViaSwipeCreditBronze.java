@@ -7,9 +7,9 @@ import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
-import com.jjjwelectronics.card.Card.CardSwipeData;
 import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderListener;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import exceptions.HoldNotAcceptedException;
@@ -39,8 +39,10 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	private CardData creditCardData;
 	private CardIssuer bank;
 	private Card card;
-	private CardReaderBronze cardReaderBronze = new CardReaderBronze();
-
+	public CardReaderBronze cardReaderBronze = new CardReaderBronze();
+	private SelfCheckoutStationBronze bronzeStation;
+	private ReceiptPrinterController receiptPrinter;
+	
 	public boolean creditCardSwiped;
 	public boolean creditCardDataRead;
 
@@ -79,19 +81,22 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	 * @throws HoldNotAcceptedException is the exception for when the bank does not accept the hold
 	 * @throws PriceIsZeroOrNegativeException is the exception for when a price is zero or negative
 	 */
-	public PayViaSwipeCreditBronze(CreditCard creditCard, BigDecimal totalCostOfGroceries)
+	public PayViaSwipeCreditBronze(CreditCard creditCard, BigDecimal totalCostOfGroceries,  SelfCheckoutStationBronze bronzeStation)
 			throws OverCreditException, IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
-		 * Turning on the card reader
+		 * Turning on the card reader and connecting it to the station, along with the printer
 		 */
+		this.bronzeStation = bronzeStation;
 		cardReaderBronze.plugIn(PowerGrid.instance());
 		cardReaderBronze.turnOn();
 		cardReaderBronze.enable();
-
+		this.receiptPrinter = new ReceiptPrinterController(bronzeStation);
+		
 		/**
 		 * Registering listeners
 		 */
+		this.bronzeStation.cardReader.register(this);
 		cardReaderBronze.register(this);
 
 		/**
@@ -129,6 +134,7 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 		 */
 		systemAcceptsHoldNumber(this.creditLimit);
 
+		
 	}
 
 	/**
@@ -142,8 +148,7 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	private void systemAcceptsHoldNumber(BigDecimal creditLimit) throws OverCreditException, HoldNotAcceptedException {
 		boolean holdReleased = bank.releaseHold(this.creditCardData.getNumber(), creditCard.getMaxHolds());
 		long holdAuthorized = bank.authorizeHold(this.creditCardData.getNumber(), totalCostOfGroceries.doubleValue());
-		boolean postTransaction = bank.postTransaction(this.creditCardData.getNumber(), creditCard.getMaxHolds(), totalCostOfGroceries.doubleValue());
-		boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0 && postTransaction == true);
+		boolean holdAcceptedAndSent = (holdReleased == true && holdAuthorized > 0);
 		if (holdAcceptedAndSent == true) {
 			systemSignalsTheAmountOfCreditAvailable(totalCostOfGroceries, creditLimit);
 		} else if (creditLimit.compareTo(totalCostOfGroceries) == -1) {
@@ -159,19 +164,20 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	 * 
 	 * @throws OverCreditException
 	 */
-	public void systemSignalsTheAmountOfCreditAvailable(BigDecimal totalCostOfGroceries,
+	private void systemSignalsTheAmountOfCreditAvailable(BigDecimal totalCostOfGroceries,
 			BigDecimal creditLimitInBigDecimal) throws OverCreditException {
 		theDataFromACardHasBeenRead(this.creditCardData);
 		this.creditCard.setCreditLimit(creditLimitInBigDecimal.subtract(totalCostOfGroceries));
-		System.out.println("Transaction Successful");
-
+		System.out.println("Transaction Successful");	
+		this.receiptPrinter.printReceipt("Receipt\n" + "Total $" + totalCostOfGroceries + "\n" + "By Credit");
+		setTotalCostOfGroceries(creditLimitInBigDecimal.subtract(totalCostOfGroceries));
 	}
 
 	/**
 	 * Sets the total cost of groceries
 	 * @param totalCostOfGroceries is the total cost of groceries
 	 */
-	public void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
+	private void setTotalCostOfGroceries(BigDecimal totalCostOfGroceries) {
 		this.totalCostOfGroceries = totalCostOfGroceries;
 	}
 

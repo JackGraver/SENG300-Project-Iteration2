@@ -4,13 +4,20 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
+import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.jjjwelectronics.card.Card;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
@@ -21,10 +28,12 @@ import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderGold;
 import com.jjjwelectronics.card.CardReaderSilver;
 import com.jjjwelectronics.card.MagneticStripeFailureException;
+import com.tdc.banknote.BanknoteValidator;
 
 import controllers.PayViaSwipeCreditBronze;
 import controllers.PayViaSwipeCreditGold;
 import controllers.PayViaSwipeCreditSilver;
+import controllers.ReceiptPrinterController;
 import exceptions.HoldNotAcceptedException;
 import exceptions.OverCreditException;
 import exceptions.PriceIsZeroOrNegativeException;
@@ -34,11 +43,73 @@ public class PayViaCreditCardTest {
 	private CardReaderBronze cardReaderBronze = new CardReaderBronze();
 	private CardReaderSilver cardReaderSilver = new CardReaderSilver();
 	private CardReaderGold cardReaderGold = new CardReaderGold();
+	private SelfCheckoutStationBronze bronzeStation;
+	private SelfCheckoutStationSilver silverStation;
+	private SelfCheckoutStationGold goldStation;
 
+	
 	@Before
 	public void setUp() {
 		PowerGrid.engageUninterruptiblePowerSource();
 		PowerGrid.instance().forcePowerRestore();
+
+		Currency currency = Currency.getInstance(Locale.CANADA);
+		BigDecimal[] denominations = { new BigDecimal(0.05), new BigDecimal(0.10), new BigDecimal(0.25),
+				new BigDecimal(1.00), new BigDecimal(2.00), new BigDecimal(5.00), new BigDecimal(10.00),
+				new BigDecimal(20.00), new BigDecimal(50.00), new BigDecimal(100.00) };
+		
+		BigDecimal[] banknoteDenominationsConfiguration = {new BigDecimal("5"),
+	            new BigDecimal("10"), new BigDecimal("20"),
+	            new BigDecimal("50"),new BigDecimal("100")};
+	    BigDecimal[] coinDenominationsConfigurationArray = {new BigDecimal("2"),
+	            new BigDecimal("1"), new BigDecimal("0.25"),
+	            new BigDecimal("0.1"),new BigDecimal("0.05")}; 
+	    
+	    
+	    SelfCheckoutStationGold.configureCurrency(Currency.getInstance("CAD"));
+	    SelfCheckoutStationGold.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationGold.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationGold.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationGold.configureCoinDispenserCapacity(5);
+	    SelfCheckoutStationGold.configureCoinTrayCapacity(5);
+	    SelfCheckoutStationGold.configureScaleMaximumWeight(5);
+	    SelfCheckoutStationGold.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationGold.configureScaleSensitivity(9);
+	    SelfCheckoutStationGold.configureCoinStorageUnitCapacity(5);
+	    
+	    goldStation = new SelfCheckoutStationGold();
+	    goldStation.plugIn(PowerGrid.instance());
+	    goldStation.turnOn();
+	    
+	    SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
+	    SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationSilver.configureCoinDispenserCapacity(5);
+	    SelfCheckoutStationSilver.configureCoinTrayCapacity(5);
+	    SelfCheckoutStationSilver.configureScaleMaximumWeight(5);
+	    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationSilver.configureScaleSensitivity(9);
+	    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(5);
+	    
+	    silverStation = new SelfCheckoutStationSilver();
+	    silverStation.plugIn(PowerGrid.instance());
+	    silverStation.turnOn();
+	    
+	    SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+	    SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationBronze.configureCoinDispenserCapacity(5);
+	    SelfCheckoutStationBronze.configureCoinTrayCapacity(5);
+	    SelfCheckoutStationBronze.configureScaleMaximumWeight(5);
+	    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationBronze.configureScaleSensitivity(9);
+	    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(5);
+	    
+	    bronzeStation = new SelfCheckoutStationBronze();
+	    bronzeStation.plugIn(PowerGrid.instance());
+	    bronzeStation.turnOn();
 	}
 
 	@Test
@@ -81,14 +152,16 @@ public class PayViaCreditCardTest {
 	 * This test case involves a Powered On bronze card reader, a credit card with
 	 * valid data, and with all listeners as well.
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws OverCreditException      is exception for the
-	 *                                  PayViaCreditCardViaSwipe
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is exception for the
+	 *                                        PayViaCreditCardViaSwipe
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void bronzeTest1() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void bronzeTest1()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
@@ -119,9 +192,10 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, totalCostOfGroceries, bronzeStation);
+			Assert.assertTrue(payViaCredit.creditCardDataRead);
+			Assert.assertTrue(payViaCredit.creditCardSwiped);
+			
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
 		}
@@ -132,14 +206,16 @@ public class PayViaCreditCardTest {
 	 * valid data, but creditLimit is below the total cost of groceries, and with
 	 * all listeners as well.
 	 * 
-	 * @throws IOException         is the exception for the CreditCard
-	 * @throws OverCreditException is the OverCredit Exception for the usage of a on
-	 *                             over the limit credit card
-	 * @throws HoldNotAcceptedException 
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is the OverCredit Exception for the
+	 *                                        usage of a on over the limit credit
+	 *                                        card
+	 * @throws HoldNotAcceptedException
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void bronzeTest2() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void bronzeTest2()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -148,7 +224,7 @@ public class PayViaCreditCardTest {
 		 * bronze card reader. Might throw an exception which will be caught.
 		 */
 		try {
-			
+
 			/**
 			 * Setting up Card Data
 			 */
@@ -169,8 +245,7 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard,
-					totalCostOfGroceries);
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, totalCostOfGroceries, bronzeStation);
 
 		} catch (MagneticStripeFailureException | OverCreditException e) {
 			e.printStackTrace();
@@ -181,13 +256,15 @@ public class PayViaCreditCardTest {
 	 * This test case involves a Powered On bronze card reader, a credit card with
 	 * valid data, and with no listeners
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
-	 * @throws OverCreditException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
+	 * @throws OverCreditException
 	 */
 	@Test
-	public void bronzeTest3() throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
+	public void bronzeTest3()
+			throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -196,7 +273,6 @@ public class PayViaCreditCardTest {
 		 * bronze card reader. Might throw an exception which will be caught.
 		 */
 		try {
-
 
 			/**
 			 * Setting up Card Data
@@ -218,10 +294,8 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard,
-					totalCostOfGroceries);
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, totalCostOfGroceries, bronzeStation);
 			cardReaderBronze.deregisterAll();
-
 
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
@@ -268,14 +342,12 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, totalCostOfGroceries, bronzeStation);
 
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -315,10 +387,10 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This test case involves a Powered On bronze card reader, a credit card with
-	 * a zero dollars total cost of groceries value, and with listeners
+	 * This test case involves a Powered On bronze card reader, a credit card with a
+	 * zero dollars total cost of groceries value, and with listeners
 	 * 
 	 * @throws IOException              is the exception for the CreditCard
 	 * @throws OverCreditException      is the exception for usage of the credit
@@ -355,16 +427,14 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditBronze payViaCredit = new PayViaSwipeCreditBronze(creditCard, totalCostOfGroceries, bronzeStation);
 
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * This test case involves a Powered On bronze card reader, a credit card with
 	 * negative max hold, and with listeners
@@ -395,19 +465,21 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * This test case involves a Powered On Silver card reader, a credit card with
 	 * valid data, and with all listeners as well.
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws OverCreditException      is exception for the
-	 *                                  PayViaCreditCardViaSwipe
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is exception for the
+	 *                                        PayViaCreditCardViaSwipe
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void silverTest1() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void silverTest1()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
@@ -438,9 +510,10 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard, totalCostOfGroceries, silverStation);
+			Assert.assertTrue(payViaCredit.creditCardDataRead);
+			Assert.assertTrue(payViaCredit.creditCardSwiped);
+			
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
 		}
@@ -451,14 +524,16 @@ public class PayViaCreditCardTest {
 	 * valid data, but creditLimit is below the total cost of groceries, and with
 	 * all listeners as well.
 	 * 
-	 * @throws IOException         is the exception for the CreditCard
-	 * @throws OverCreditException is the OverCredit Exception for the usage of a on
-	 *                             over the limit credit card
-	 * @throws HoldNotAcceptedException 
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is the OverCredit Exception for the
+	 *                                        usage of a on over the limit credit
+	 *                                        card
+	 * @throws HoldNotAcceptedException
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void silverTest2() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void silverTest2()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -467,7 +542,7 @@ public class PayViaCreditCardTest {
 		 * Silver card reader. Might throw an exception which will be caught.
 		 */
 		try {
-			
+
 			/**
 			 * Setting up Card Data
 			 */
@@ -488,8 +563,7 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard,
-					totalCostOfGroceries);
+			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard, totalCostOfGroceries, silverStation);
 
 		} catch (MagneticStripeFailureException | OverCreditException e) {
 			e.printStackTrace();
@@ -500,13 +574,15 @@ public class PayViaCreditCardTest {
 	 * This test case involves a Powered On Silver card reader, a credit card with
 	 * valid data, and with no listeners
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
-	 * @throws OverCreditException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
+	 * @throws OverCreditException
 	 */
 	@Test
-	public void silverTest3() throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
+	public void silverTest3()
+			throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -515,7 +591,6 @@ public class PayViaCreditCardTest {
 		 * Silver card reader. Might throw an exception which will be caught.
 		 */
 		try {
-
 
 			/**
 			 * Setting up Card Data
@@ -537,10 +612,8 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard,
-					totalCostOfGroceries);
+			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard, totalCostOfGroceries, silverStation);
 			cardReaderSilver.deregisterAll();
-
 
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
@@ -587,14 +660,12 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard, totalCostOfGroceries, silverStation);
 
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -634,10 +705,10 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This test case involves a Powered On Silver card reader, a credit card with
-	 * a zero dollars total cost of groceries value, and with listeners
+	 * This test case involves a Powered On Silver card reader, a credit card with a
+	 * zero dollars total cost of groceries value, and with listeners
 	 * 
 	 * @throws IOException              is the exception for the CreditCard
 	 * @throws OverCreditException      is the exception for usage of the credit
@@ -674,16 +745,14 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditSilver payViaCredit = new PayViaSwipeCreditSilver(creditCard, totalCostOfGroceries, silverStation);
 
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * This test case involves a Powered On Silver card reader, a credit card with
 	 * negative max hold, and with listeners
@@ -714,19 +783,21 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * This test case involves a Powered On Gold card reader, a credit card with
 	 * valid data, and with all listeners as well.
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws OverCreditException      is exception for the
-	 *                                  PayViaCreditCardViaSwipe
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is exception for the
+	 *                                        PayViaCreditCardViaSwipe
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void goldTest1() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void goldTest1()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
@@ -757,8 +828,9 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard,
-					totalCostOfGroceries);
+			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard, totalCostOfGroceries, goldStation);
+			Assert.assertTrue(payViaCredit.creditCardDataRead);
+			Assert.assertTrue(payViaCredit.creditCardSwiped);
 
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
@@ -770,14 +842,16 @@ public class PayViaCreditCardTest {
 	 * valid data, but creditLimit is below the total cost of groceries, and with
 	 * all listeners as well.
 	 * 
-	 * @throws IOException         is the exception for the CreditCard
-	 * @throws OverCreditException is the OverCredit Exception for the usage of a on
-	 *                             over the limit credit card
-	 * @throws HoldNotAcceptedException 
-	 * @throws PriceIsZeroOrNegativeException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws OverCreditException            is the OverCredit Exception for the
+	 *                                        usage of a on over the limit credit
+	 *                                        card
+	 * @throws HoldNotAcceptedException
+	 * @throws PriceIsZeroOrNegativeException
 	 */
 	@Test
-	public void goldTest2() throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
+	public void goldTest2()
+			throws IOException, OverCreditException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -786,7 +860,7 @@ public class PayViaCreditCardTest {
 		 * Gold card reader. Might throw an exception which will be caught.
 		 */
 		try {
-			
+
 			/**
 			 * Setting up Card Data
 			 */
@@ -807,9 +881,8 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard,
-					totalCostOfGroceries);
-
+			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard, totalCostOfGroceries, goldStation);
+			
 		} catch (MagneticStripeFailureException | OverCreditException e) {
 			e.printStackTrace();
 		}
@@ -819,13 +892,15 @@ public class PayViaCreditCardTest {
 	 * This test case involves a Powered On Gold card reader, a credit card with
 	 * valid data, and with no listeners
 	 * 
-	 * @throws IOException              is the exception for the CreditCard
-	 * @throws HoldNotAcceptedException is exception for the hold not being accepted
-	 * @throws PriceIsZeroOrNegativeException 
-	 * @throws OverCreditException 
+	 * @throws IOException                    is the exception for the CreditCard
+	 * @throws HoldNotAcceptedException       is exception for the hold not being
+	 *                                        accepted
+	 * @throws PriceIsZeroOrNegativeException
+	 * @throws OverCreditException
 	 */
 	@Test
-	public void goldTest3() throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
+	public void goldTest3()
+			throws IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException, OverCreditException {
 		/**
 		 * Bank: Signals to the System the hold number against the account of the credit
 		 * card.
@@ -834,7 +909,6 @@ public class PayViaCreditCardTest {
 		 * Gold card reader. Might throw an exception which will be caught.
 		 */
 		try {
-
 
 			/**
 			 * Setting up Card Data
@@ -856,11 +930,9 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard,
-					totalCostOfGroceries);
-			cardReaderGold.deregisterAll();
-
-
+			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard, totalCostOfGroceries, goldStation);
+			payViaCredit.cardReaderGold.deregisterAll();
+	
 		} catch (MagneticStripeFailureException | HoldNotAcceptedException e) {
 			e.printStackTrace();
 		}
@@ -906,14 +978,12 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard,
-					totalCostOfGroceries);
-
-
+			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard, totalCostOfGroceries, goldStation);
+			
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -953,10 +1023,10 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This test case involves a Powered On Gold card reader, a credit card with
-	 * a zero dollars total cost of groceries value, and with listeners
+	 * This test case involves a Powered On Gold card reader, a credit card with a
+	 * zero dollars total cost of groceries value, and with listeners
 	 * 
 	 * @throws IOException              is the exception for the CreditCard
 	 * @throws OverCreditException      is the exception for usage of the credit
@@ -993,16 +1063,13 @@ public class PayViaCreditCardTest {
 			 */
 			Card card = new Card("Mastercard", "1234567890123456", "Dylan", "099");
 			CreditCard creditCard = new CreditCard(card, creditLimitInBigDecimal, maxHolds, bank);
-			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard,
-					totalCostOfGroceries);
-
-
+			PayViaSwipeCreditGold payViaCredit = new PayViaSwipeCreditGold(creditCard, totalCostOfGroceries, goldStation);
 		} catch (PriceIsZeroOrNegativeException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * This test case involves a Powered On Gold card reader, a credit card with
 	 * negative max hold, and with listeners
@@ -1033,6 +1100,5 @@ public class PayViaCreditCardTest {
 			e.printStackTrace();
 		}
 	}
-	
 
 }
