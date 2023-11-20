@@ -26,11 +26,7 @@ public class AddOwnBags extends AbstractElectronicScale implements ElectronicSca
 
 	public AddOwnBags() {
 		
-		super();
-		
-		ElectronicScaleGold electronicScaleGold = new ElectronicScaleGold();
-		ElectronicScaleSilver electronicScaleSilver = new ElectronicScaleSilver();
-		ElectronicScaleBronze electronicScaleBronze = new ElectronicScaleBronze();
+		super(massLimit, sensitivityLimit);
 		
 	}
 	
@@ -74,12 +70,12 @@ public class AddOwnBags extends AbstractElectronicScale implements ElectronicSca
 
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
-		if (addBags == true) {
+		if (addBags) {
 			try {
 				getCurrentMassOnTheScale();
 			} catch (OverloadedDevice e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				notifyOverload();
 			}
 		} else {
 			WeightDescrepency();
@@ -109,5 +105,19 @@ public class AddOwnBags extends AbstractElectronicScale implements ElectronicSca
 		return true;
 		
 	}
+	
+	public void AttendentOverrideToHandleDiscrepancy(boolean override){
+		if (AddItemController.isBlocked()) {				
+			if (override) {
+				AddItemController.unblock();	
+			}
+			else {
+				WeightDescrepency();
+			}
+		
+		}
+	}
+	
+	
 
 }
