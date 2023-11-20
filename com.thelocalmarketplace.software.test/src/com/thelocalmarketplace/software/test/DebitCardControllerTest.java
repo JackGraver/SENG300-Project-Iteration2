@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -127,6 +128,8 @@ public class DebitCardControllerTest {
     	testObject.setBank(cardIssuerRBC);
     	stationGold.cardReader.swipe(debitCardHighFund);
     	assertEquals("123456", testObject.cardData.getNumber());
+    	assertEquals(0, testObject.getAmountDue(), 0.0001);
+    	assertTrue(testObject.completePayment);
    
     }
     
@@ -181,7 +184,7 @@ public class DebitCardControllerTest {
     public void InvalidBank() throws InvalidArgumentSimulationException{
         DebitCardController testObject = new DebitCardController(stationGold);
         assertThrows(InvalidArgumentSimulationException.class, () -> {
-        	testObject.setBank(new CardIssuer("000",00));
+        	testObject.setBank(new CardIssuer("000",0));
         });
     }
     
@@ -191,9 +194,48 @@ public class DebitCardControllerTest {
     	testObject.setAmountDue(10);
     	testObject.setBank(cardIssuerRBC);
     	stationGold.cardReader.swipe(notDebitCard);
-    	assertEquals("101010", testObject.cardData.getNumber());
+    	//Payment through DebitCardController not possible if not debit
+    	assertFalse(testObject.completePayment);
     	
     }
-       
+    
+    @Test
+    public void testInvalidHold() throws IOException {
+    	testObject = new DebitCardController(stationGold);
+    	
+    	//Invalid amount - will cause hold fail
+    	testObject.setAmountDue(-10);
+    	testObject.setBank(cardIssuerRBC);
+    	stationGold.cardReader.swipe(debitCardHighFund);
+    	assertEquals("123456", testObject.cardData.getNumber());
+  
+    	//Invalid hold, so no payment
+    	assertFalse(testObject.completePayment);
+   
+    }
+
+    
+    @Test
+    public void testDeviceEnable() throws IOException {
+    	testObject = new DebitCardController(stationGold);
+    	stationGold.cardReader.enable();
+    	assertTrue(testObject.isEnabled);
+    	stationGold.cardReader.disable();
+    	assertFalse(testObject.isEnabled);	
+    	
+    }
+    
+    @Test
+    public void testDeviceOn() throws IOException {
+    	testObject = new DebitCardController(stationGold);
+    	stationGold.cardReader.turnOff();
+    	assertFalse(testObject.isOn);
+    	stationGold.cardReader.turnOn();
+    	assertTrue(testObject.isOn);
+    	
+   
+    	
+    }
+     
     
 }
