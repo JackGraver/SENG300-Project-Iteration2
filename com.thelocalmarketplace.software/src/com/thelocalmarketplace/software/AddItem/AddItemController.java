@@ -1,8 +1,7 @@
-package com.thelocalmarketplace.software.addItem.AddItem;
+package com.thelocalmarketplace.software;
+
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.math.BigInteger;
+
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Item;
@@ -13,47 +12,70 @@ import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
-import com.jjjwelectronics.scanner.BarcodeScannerGold;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
-//import com.thelocalmarketplace.software.test.AddItemControllerTest.ConcreteItem;
 
 import powerutility.PowerGrid;
 
 
-public class AddItemController implements BarcodeScannerListener, ElectronicScaleListener {
-	public SelfCheckoutStationGold selfCheckoutStation;
+public class AddItemWithDiscrepancyController implements BarcodeScannerListener, ElectronicScaleListener {
+	public SelfCheckoutStationGold selfCheckoutStationGold;
+	public SelfCheckoutStationBronze selfCheckoutStationBronze;
+	public SelfCheckoutStationSilver selfCheckoutStationSilver;
+	public AbstractSelfCheckoutStation selfCheckoutStation;
 	public PowerGrid powerGrid; 
 	private long totalCost;
 	private double totalWeight;
 	private Mass expectedWeight;
 	public ElectronicScaleGold electronicScale;
 	public StartSession startSession;
-	
+	public Mass currentMass;
+	public boolean foundDiscrepancy;
+	public boolean isEnabled;
+	public boolean isOn;
+	public boolean isOverloaded;
 	public static boolean isBlocked = false;
 	
-	public AddItemController (SelfCheckoutStationGold ss, PowerGrid pg, StartSession startSess) {
-		selfCheckoutStation = ss;
-		powerGrid = pg;
-		ss.plugIn(pg);
-		ss.turnOn();
-		setTotalCost(0);
-		setTotalWeight(0);
-		
-		ss.mainScanner.plugIn(pg);
-		ss.mainScanner.turnOn();
-		ss.mainScanner.register(this);
-		//electronicScale = new ElectronicScale();
-		
-		ss.baggingArea.plugIn(pg);
-		ss.baggingArea.turnOn();
-		ss.baggingArea.register(this);
+	public AddItemWithDiscrepancyController (SelfCheckoutStationGold ssg, StartSession startSess) {
+		this.selfCheckoutStation= ssg;
+        this.selfCheckoutStation.mainScanner.register(this);
+        this.selfCheckoutStation.baggingArea.register(this);
+        
+        
 		
 		startSession = startSess;
 		isBlocked = false;
+		foundDiscrepancy = false;
+	
+	}
+	
+	public AddItemWithDiscrepancyController (SelfCheckoutStationSilver sss, StartSession startSess ) {
+		this.selfCheckoutStation= sss;
+        this.selfCheckoutStation.mainScanner.register(this);
+        this.selfCheckoutStation.baggingArea.register(this);
+        
+		
+		startSession = startSess;
+		isBlocked = false;
+		foundDiscrepancy = false;
+	
+	}
+	
+	public AddItemWithDiscrepancyController (SelfCheckoutStationBronze ssb, StartSession startSess ) {
+		this.selfCheckoutStation= ssb;
+        this.selfCheckoutStation.mainScanner.register(this);
+        this.selfCheckoutStation.baggingArea.register(this);
+        
+		
+		startSession = startSess;
+		isBlocked = false;
+		foundDiscrepancy = false;
 	
 	}
 	
@@ -69,76 +91,56 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 		
 		//Ignores logic if session has not been started or session is blocked 
-		if(startSession.isInSession() && !AddItemController.isBlocked()) {	
+		if(this.startSession.isInSession() && !AddItemWithDiscrepancyController.isBlocked()) {	
 			
-			AddItemController.block();			// Block further customer interaction 
+			AddItemWithDiscrepancyController.block();			// Block further customer interaction 
 			
-		
-	
 			 BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 			 if (product != null) {
 				 
-				 	class ConcreteItem extends Item {
-					    public ConcreteItem(Mass mass) {
-					        super(mass);
-					    }
-					}
 		
+				 	
 		            setTotalCost(product.getPrice()+ getTotalCost());
 		            
-		            setTotalWeight(product.getExpectedWeight()+ getTotalWeight()); 		//updates expected weight
+		            if (new Mass(product.getExpectedWeight()+ getTotalWeight()).compareTo(this.selfCheckoutStation.baggingArea.getMassLimit()) == -1) {
+		            	setTotalWeight(product.getExpectedWeight()+ getTotalWeight()); 		//updates expected weight
+		            	System.out.println("Please place '" + product.getDescription() +"' in bagging area.");		//Signals to Customer to place item in bagging area
+		            }
+		            else {
+		            	System.out.println("Item too heavy. Do NOT place in bagging area!");
+		            }
+		           
 		            
-		            System.out.println("Please place item in bagging area.");		//Signals to Customer to place item in bagging area
-		            
-		            Mass weight = new Mass(product.getExpectedWeight()*1000); 
-		        	Item item = new ConcreteItem(weight);
-		        	
-		        	selfCheckoutStation.baggingArea.addAnItem(item);
-		        	
-		        	
-		        	Mass After = null;
-		        	
-		            try {
-						After = ((AbstractElectronicScale) selfCheckoutStation.baggingArea).getCurrentMassOnTheScale();
-					} catch (OverloadedDevice e) {
-						e.printStackTrace();
-					}
-		            
-		            
-		          
-		            BigInteger difference = weight.inMicrograms().subtract(After.inMicrograms()).abs();
-		            BigInteger sens = selfCheckoutStation.baggingArea.getSensitivityLimit().inMicrograms();
-
-		            if (difference.compareTo(sens) > 0) {
-		    			WeightDescrepency();
-		    		}
-		               
+		            //Mass weight = new Mass(product.getExpectedWeight());
+		            //System.out.println(weight.inMicrograms());
+		        
+		             
 		            
 			 } else {
 			        System.out.println("Barcode not found: " + barcode.toString());
 			 } 
 		}
-		AddItemController.unblock();		//Unblock
+		AddItemWithDiscrepancyController.unblock();		//Unblock
 
 	}
 	
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
-		System.out.println("Device enabled");
+		isEnabled = true;
 	}
 	@Override
 	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
-		System.out.println("Device disabled");
+		isEnabled = false;
 		
 	}
 	@Override
 	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
-		System.out.println("Device turned on");
+		isOn = true;
 		
 	}
 	@Override
 	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
-		System.out.println("Device turned off");
+		isOn = false;
 		
 	}
 	public long getTotalCost() {
@@ -154,6 +156,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 		this.totalWeight = d;
 	}
 
+	
 
 	/**
 	 * Implements logic for change of mass on scale
@@ -163,9 +166,20 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	 */
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
-		expectedWeight = new Mass(getTotalWeight());
+		
+		if (scale instanceof AbstractElectronicScale) {
+		    try {
+		        currentMass = ((AbstractElectronicScale) scale).getCurrentMassOnTheScale();
+		        //System.out.println(currentMass.toString());
+		    } catch (OverloadedDevice e) {
+		    }
+		    
+		    CheckWeightDescrepency();
+		}
 		
 	}
+
+
 	
 	/**
 	 * Implements logic of weight discrepancy detected
@@ -173,38 +187,60 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	 * @param electronic scale hardware and mass on scale
 	 * @return void
 	 */
-	public boolean WeightDescrepency() {
-		System.out.println("Discrepency found!");
-		System.out.println("** Attendant has been notified **");
-		AddItemController.block();
+	public boolean CheckWeightDescrepency() {
+		BigInteger difference;
+		if (currentMass == null) {
+			difference= new Mass(getTotalWeight()).inMicrograms();
+		}
+		else {
+			difference = (new Mass(getTotalWeight())).inMicrograms().subtract(currentMass.inMicrograms()).abs();
+		}
 		
-		return true;
+        
+		//System.out.println((new Mass(getTotalWeight()).inMicrograms()).toString());
+        //System.out.println(currentMass.inMicrograms().toString());
+        
+        BigInteger sens = selfCheckoutStation.baggingArea.getSensitivityLimit().inMicrograms();
+
+        if (difference.compareTo(sens) > 0) {
+			System.out.println("Discrepancy found! Attendant notified!");
+			foundDiscrepancy = true;
+			AddItemWithDiscrepancyController.block();
+			return true;
+		}
+        else {
+        	return false;
+        }
+        //System.out.println(difference);
+        //System.out.println(sens);
+        
 		
 	}
-
+	
 	/**
-	 * Implements logic of handling weight discrepancy adding item (Option 1: add/remove item)
+	 * Implements logic of handling weight discrepancy adding item (Option 1: add item)
 	 *
 	 * @param electronic scale hardware and mass on scale
 	 * @return void
 	 */
-	public void AddOrRemoveItemToHandleDiscrepancy(){
-		if (AddItemController.isBlocked()) {				
-			expectedWeight = new Mass(getTotalWeight());
-			
-			try {
-				if (expectedWeight.compareTo(((AbstractElectronicScale) selfCheckoutStation.baggingArea).getCurrentMassOnTheScale()) == 0) {
-					AddItemController.unblock();	
-				}
-				else {
-					WeightDescrepency();
-				}
-			} catch (OverloadedDevice e) {
-				e.printStackTrace();
+	public void AddItemToHandleDiscrepancy(Item itemToAdd){
+		//System.out.println(itemToRemove.getMass().toString());
+		System.out.println(currentMass);
+		System.out.println(new Mass(getTotalWeight()));
+		
+		if (foundDiscrepancy) {	
+			System.out.print(itemToAdd.getClass().getName());
+			selfCheckoutStation.baggingArea.addAnItem(itemToAdd);
+	
+			if(!CheckWeightDescrepency()) {
+				foundDiscrepancy = false; 
+				System.out.println("Discrepancy SOLVED after removing item!");
 			}
+			
 		}
 		
 	}
+	
 	
 	/**
 	 * Implements logic of handling weight discrepancy adding item (Option 2: do not bag item) 
@@ -212,38 +248,41 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	 * @param electronic scale hardware and mass on scale
 	 * @return void
 	 */
-	public void DoNotBagToHandleDiscrepancy(boolean doNotBag){
-		if (AddItemController.isBlocked()) {				
-			if (doNotBag) {
-				AddItemController.unblock();	
-			}
-			else {
-				WeightDescrepency();
-			}
-		}
-	}
+	public void DoNotBagToHandleDiscrepancy(Item notBag){
+		AddItemWithDiscrepancyController.unblock();
+		foundDiscrepancy = false;
+		
+		//Change expected total weight value if not bagging items
+		//System.out.println(getTotalWeight());
+		setTotalWeight(getTotalWeight() - notBag.getMass().inGrams().doubleValue());
+		
+		//System.out.println(getTotalWeight());
 	
+	}
 	/**
 	 * Implements logic of handling weight discrepancy adding item (Option 3: Attendant overrride) 
 	 *
-	 * @param electronic scale hardware and mass on scale
+	 * @param none
 	 * @return void
 	 */
-	public void AttendentOverrideToHandleDiscrepancy(boolean override){
-		if (AddItemController.isBlocked()) {				
-			if (override) {
-				AddItemController.unblock();	
-			}
-			else {
-				WeightDescrepency();
-			}
-		
-		}
+	public void AttendentOverrideToHandleDiscrepancy(){			
+			AddItemWithDiscrepancyController.unblock();
+			foundDiscrepancy = false;
+			
+			//Reset Expected Weight to match Actual Weight after override
+			try {
+		        currentMass = ((AbstractElectronicScale) selfCheckoutStation.baggingArea).getCurrentMassOnTheScale();
+		        setTotalWeight(currentMass.inGrams().doubleValue());
+		    } catch (OverloadedDevice e) {
+			
+		    	
+			
+		    }
 	}
 
 	@Override
 	public void theMassOnTheScaleHasExceededItsLimit(IElectronicScale scale) {
-		System.out.println("Scale overload! Please remove excess weight.");
+		isOverloaded = true;
 	}
 
 
@@ -280,4 +319,3 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
         return isBlocked;
     }
 }
-
