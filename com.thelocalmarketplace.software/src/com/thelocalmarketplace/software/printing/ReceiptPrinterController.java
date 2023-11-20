@@ -7,130 +7,171 @@ import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.printer.ReceiptPrinterListener;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 
+/**
+ * The `ReceiptPrinterController` class is responsible for controlling the printing process
+ * in a self-checkout station. It interacts with the printer device and handles events related
+ * to paper, ink, and device status. This class uses an attendant simulation to manage situations
+ * where the printer is out of paper or ink.
+ *
+ * @author Raja Muhammed Omar
+ */
 public class ReceiptPrinterController implements ReceiptPrinterListener {
 
-	public AbstractSelfCheckoutStation scs;
-	private String receiptToPrint;
-	private AttendantSimulation attendant;
-	private String printedReceipt;
+    /** The self-checkout station associated with this controller. */
+    public AbstractSelfCheckoutStation scs;
 
-	public ReceiptPrinterController(AbstractSelfCheckoutStation scs) {
-		this.scs = scs;
-		this.scs.printer.register(this);
-		this.attendant = new AttendantSimulation(this);
-	}
+    /** The receipt to be printed. */
+    private String receiptToPrint;
 
-	public void printReceipt(String receipt) {
-		setReceiptToPrint(receipt);
-		for (int i = 0; i < receiptToPrint.length(); i++) {
-			try {
-				scs.printer.print(receiptToPrint.charAt(i));
+    /** The attendant simulation for handling various events. */
+    private AttendantSimulation attendant;
 
-			} catch (EmptyDevice e) {
-				if (e.getMessage().equals("There is no paper in the printer.")) {
-					thePrinterIsOutOfPaper();
-				} else {
-					thePrinterIsOutOfInk();
+    /** The printed receipt after the printing process. */
+    private String printedReceipt;
 
-				}
-			} catch (OverloadedDevice e) {
+    /**
+     * Constructs a new `ReceiptPrinterController` with the specified self-checkout station.
+     *
+     * @param scs The self-checkout station to associate with the controller.
+     */
+    public ReceiptPrinterController(AbstractSelfCheckoutStation scs) {
+        this.scs = scs;
+        this.scs.printer.register(this);
+        this.attendant = new AttendantSimulation(this);
+    }
 
-				System.out.println("Line too long");
-			}
+    /**
+     * Prints the specified receipt by interacting with the printer device.
+     *
+     * @param receipt The receipt to be printed.
+     */
+    public void printReceipt(String receipt) {
+        setReceiptToPrint(receipt);
+        for (int i = 0; i < receiptToPrint.length(); i++) {
+            try {
+                scs.printer.print(receiptToPrint.charAt(i));
+            } catch (EmptyDevice e) {
+                handleEmptyDevice(e);
+            } catch (OverloadedDevice e) {
+                handleOverloadedDevice(e);
+            }
+        }
+        scs.printer.cutPaper();
+        this.setPrintedReceipt(getReceiptToPrint().charAt(0) + scs.printer.removeReceipt());
+    }
 
-		}
+    /**
+     * Gets the printed receipt after the printing process.
+     *
+     * @return The printed receipt.
+     */
+    public String getPrintedReceipt() {
+        return this.printedReceipt;
+    }
 
-		scs.printer.cutPaper();
-		this.setPrintedReceipt(getReceiptToPrint().charAt(0) + scs.printer.removeReceipt());
+    /**
+     * Gets the receipt to be printed.
+     *
+     * @return The receipt to be printed.
+     */
+    public String getReceiptToPrint() {
+        return this.receiptToPrint;
+    }
 
-	}
+    /**
+     * Sets the receipt to be printed.
+     *
+     * @param receiptToPrint The receipt to be printed.
+     */
+    public void setReceiptToPrint(String receiptToPrint) {
+        this.receiptToPrint = receiptToPrint;
+    }
 
-	private void setPrintedReceipt(String printedReceipt) {
-		this.printedReceipt = printedReceipt;
-	}
+    // Implementation of ReceiptPrinterListener interface methods
 
-	public String getPrintedReceipt() {
-		return this.printedReceipt;
-	}
+    @Override
+    public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
+        // Handle device enabled event if needed
+    }
 
-	public String getReceiptToPrint() {
-		return this.receiptToPrint;
-	}
+    @Override
+    public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+        // Handle device disabled event if needed
+    }
 
-	public void setReceiptToPrint(String receiptToPrint) {
-		this.receiptToPrint = receiptToPrint;
-	}
+    @Override
+    public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+        // Handle device turned on event if needed
+    }
 
-	@Override
-	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+    @Override
+    public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+        // Handle device turned off event if needed
+    }
 
-	}
+    @Override
+    public void thePrinterIsOutOfPaper() {
+        handleOutOfPaper();
+    }
 
-	@Override
-	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+    @Override
+    public void thePrinterIsOutOfInk() {
+        handleOutOfInk();
+    }
 
-	}
+    @Override
+    public void thePrinterHasLowInk() {
+        // Handle low ink event if needed
+    }
 
-	@Override
-	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+    @Override
+    public void thePrinterHasLowPaper() {
+        // Handle low paper event if needed
+    }
 
-	}
+    @Override
+    public void paperHasBeenAddedToThePrinter() {
+        // Handle paper added event if needed
+    }
 
-	@Override
-	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+    @Override
+    public void inkHasBeenAddedToThePrinter() {
+        // Handle ink added event if needed
+    }
 
-	}
+    // Private methods for handling specific situations
 
-	@Override
-	public void thePrinterIsOutOfPaper() {
-		try {
-			attendant.addPaper();
-		} catch (OverloadedDevice e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		attendant.printDuplicateReceipt(getReceiptToPrint());
+    private void handleEmptyDevice(EmptyDevice e) {
+        if (e.getMessage().equals("There is no paper in the printer.")) {
+            handleOutOfPaper();
+        } else {
+            handleOutOfInk();
+        }
+    }
 
-	}
+    private void handleOutOfPaper() {
+        try {
+            attendant.addPaper();
+        } catch (OverloadedDevice e) {
+            e.printStackTrace();
+        }
+        attendant.printDuplicateReceipt(getReceiptToPrint());
+    }
 
-	@Override
-	public void thePrinterIsOutOfInk() {
-		try {
-			attendant.addInk();
-		} catch (OverloadedDevice e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		attendant.printDuplicateReceipt(getReceiptToPrint());
+    private void handleOutOfInk() {
+        try {
+            attendant.addInk();
+        } catch (OverloadedDevice e) {
+            e.printStackTrace();
+        }
+        attendant.printDuplicateReceipt(getReceiptToPrint());
+    }
 
-	}
+    private void handleOverloadedDevice(OverloadedDevice e) {
+        System.out.println("Line too long");
+    }
 
-	@Override
-	public void thePrinterHasLowInk() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void thePrinterHasLowPaper() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void paperHasBeenAddedToThePrinter() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void inkHasBeenAddedToThePrinter() {
-		// TODO Auto-generated method stub
-
-	}
-
+    private void setPrintedReceipt(String printedReceipt) {
+        this.printedReceipt = printedReceipt;
+    }
 }
