@@ -1,8 +1,13 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import com.jjjwelectronics.card.InvalidPINException;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.software.addItem.*;
 
@@ -32,7 +37,15 @@ public class StartSessionTest {
     public void testStartSession() {
         assertFalse(startSession.isInSession()); // Preconditions: System is not in a session
 
-        startSession.startSession(powerGrid);
+        try {
+			startSession.startSession(powerGrid);
+		} catch (InvalidPINException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         assertTrue(startSession.isInSession());
     }

@@ -1,5 +1,6 @@
 package com.thelocalmarketplace.software.test;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.jjjwelectronics.IDevice;
@@ -8,6 +9,7 @@ import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.card.InvalidPINException;
 import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerGold;
@@ -90,7 +92,15 @@ public class AddItemControllerTest {
         scanner = new BarcodeScannerGold();
         
         startSession = new StartSession(selfCheckoutStation);
-    	startSession.startSession(powerGrid);
+    	try {
+			startSession.startSession(powerGrid);
+		} catch (InvalidPINException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSession);
     	
         ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcodeChips, productBarChips);
@@ -152,7 +162,15 @@ public class AddItemControllerTest {
     public void barcodeHasBeenScannedInSessionBlocked() {
     	System.out.println();
     	StartSession startSessionT = new StartSession(selfCheckoutStation);
-    	startSessionT.startSession(powerGrid);
+    	try {
+			startSessionT.startSession(powerGrid);
+		} catch (InvalidPINException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	assertEquals(true, startSessionT.isInSession());
     	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSessionT);
     	AddItemController.block();

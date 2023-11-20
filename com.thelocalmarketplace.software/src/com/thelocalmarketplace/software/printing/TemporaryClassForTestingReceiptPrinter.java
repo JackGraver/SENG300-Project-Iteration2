@@ -1,4 +1,4 @@
-package com.thelocalmarketplace.software.addItem;
+package com.thelocalmarketplace.software.printing;
 import java.math.BigDecimal;
 import java.util.Currency;
 
@@ -7,7 +7,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import powerutility.PowerGrid;
 
 
-public class Main {
+public class TemporaryClassForTestingReceiptPrinter {
     public static void main(String[] args) {
     	
     	BigDecimal[] banknoteDenominationsConfiguration = {new BigDecimal("5"),

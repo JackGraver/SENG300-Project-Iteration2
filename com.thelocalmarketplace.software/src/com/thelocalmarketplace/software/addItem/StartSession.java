@@ -4,6 +4,8 @@ package com.thelocalmarketplace.software.addItem;
 import java.io.IOException;
 import com.jjjwelectronics.card.InvalidPINException;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
+
 import powerutility.PowerGrid;
 
 public class StartSession {

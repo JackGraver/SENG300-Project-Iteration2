@@ -1,4 +1,4 @@
-package com.thelocalmarketplace.software.addItem;
+package com.thelocalmarketplace.software.printing;
 
 import com.jjjwelectronics.EmptyDevice;
 import com.jjjwelectronics.IDevice;
@@ -12,6 +12,8 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 	public SelfCheckoutStationGold scs;
 	private String receiptToPrint;
 	private AttendantSimulation attendant;
+	private String printedReceipt;
+	
 
 	public ReceiptPrinterController(SelfCheckoutStationGold scs) {
 		this.scs = scs;
@@ -20,13 +22,9 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 	}
 
 
-	public void printReceipt(String reciept) {
-		try {
-			scs.printer.addInk(1000);
-		} catch (OverloadedDevice e) {
-			e.printStackTrace();
-		}
-		setReceiptToPrint(reciept);
+	public void printReceipt(String receipt) {
+		
+		setReceiptToPrint(receipt);
 		for (int i = 0; i < receiptToPrint.length(); i++) {
 			try {
 				scs.printer.print(receiptToPrint.charAt(i));
@@ -36,23 +34,30 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 					thePrinterIsOutOfPaper();
 				} else {
 					thePrinterIsOutOfInk();
+
 				}
-				attendant.reprintReceipt(reciept);
-				
 			} catch (OverloadedDevice e) {
 				
 				System.out.println("Line too long");
 			}
 
 		}
+
+		scs.printer.cutPaper();
+		this.setPrintedReceipt(getReceiptToPrint().charAt(0)+ scs.printer.removeReceipt());
+
 	}
 
+	private void setPrintedReceipt(String printedReceipt) {
+		this.printedReceipt = printedReceipt;
+	}
+
+
 	public String getPrintedReceipt() {
-		this.scs.printer.cutPaper();
-		return this.scs.printer.removeReceipt();
+		return this.printedReceipt;
 	}
 	
-	public String getRecieptToPrint() {
+	public String getReceiptToPrint() {
 		return this.receiptToPrint;
 	}
 	
@@ -87,22 +92,24 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 	@Override
 	public void thePrinterIsOutOfPaper() {
 		try {
-			attendant.outOfPaper();
+			attendant.addPaper();
 		} catch (OverloadedDevice e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		attendant.printDuplicateReceipt(getReceiptToPrint());
 
 	}
 
 	@Override
 	public void thePrinterIsOutOfInk() {
 		try {
-			attendant.outOfInk();
+			attendant.addInk();
 		} catch (OverloadedDevice e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		attendant.printDuplicateReceipt(getReceiptToPrint());
 
 	}
 
