@@ -21,13 +21,14 @@ public class AttendantSimulation {
 		removePreviousReceipt();
 	}
 	
-	public void printDuplicateReceipt() {
-		rpc.printReceipt(rpc.getRecieptToPrint());
-	}
 	
 	public void removePreviousReceipt() {
 		rpc.scs.printer.cutPaper();
 		rpc.scs.printer.removeReceipt();
 
+	}
+
+	public void reprintReceipt(String reciept) {
+		rpc.printReceipt(reciept);
 	}
 }
