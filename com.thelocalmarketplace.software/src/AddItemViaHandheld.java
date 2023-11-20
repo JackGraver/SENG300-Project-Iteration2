@@ -9,9 +9,8 @@ import com.jjjwelectronics.scanner.BarcodedItem;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
-import com.thelocalmarketplace.software.addItem.AddItemController;
+import com.thelocalmarketplace.software.AddItem.AddItemWithDiscrepancyController;
 
 /*
  * Jack Graver - 10187274
@@ -20,6 +19,12 @@ import com.thelocalmarketplace.software.addItem.AddItemController;
  * .
  */
 public class AddItemViaHandheld implements BarcodeScannerListener {
+
+    private AbstractSelfCheckoutStation checkoutStation;
+
+    public AddItemViaHandheld(AbstractSelfCheckoutStation checkoutStation) {
+        this.checkoutStation = checkoutStation;
+    }
 
     @Override
     public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
@@ -45,7 +50,7 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
 
         //following steps from use case:
         //Block?
-        AddItemController.block();
+        AddItemWithDiscrepancyController.block();
 
         BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
         if(product != null) {
@@ -54,6 +59,7 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
             long cost = product.getPrice();
             
             //update expected weight from bagging area
+                checkoutStation.baggingArea.addAnItem(new BarcodedItem(barcode, new Mass(weight)));
                 //use add item controller?
                 //not sure how to update weight otherwise
                 //handle weight discrepancy?
@@ -64,6 +70,6 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
         }
 
         //Unblock? 
-        AddItemController.unblock();
+        AddItemWithDiscrepancyController.unblock();
     }
 }
