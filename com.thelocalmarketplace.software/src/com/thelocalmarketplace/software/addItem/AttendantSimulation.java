@@ -20,7 +20,7 @@ public class AttendantSimulation {
 		scsg.printer.addPaper(1 << 20);
 	}
 	
-	public void printDuplicateReceipt(String receipt) {
-		rpc.printReceipt(receipt);
+	public void printDuplicateReceipt() {
+		rpc.printReceipt(rpc.recieptToPrint);
 	}
 }
