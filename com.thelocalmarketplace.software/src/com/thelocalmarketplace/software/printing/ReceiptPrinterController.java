@@ -13,7 +13,6 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 	private String receiptToPrint;
 	private AttendantSimulation attendant;
 	private String printedReceipt;
-	
 
 	public ReceiptPrinterController(SelfCheckoutStationGold scs) {
 		this.scs = scs;
@@ -21,30 +20,28 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 		this.attendant = new AttendantSimulation(this);
 	}
 
-
 	public void printReceipt(String receipt) {
-		
-		setReceiptToPrint(receipt);
-		for (int i = 0; i < receiptToPrint.length(); i++) {
-			try {
-				scs.printer.print(receiptToPrint.charAt(i));
-				
-			} catch (EmptyDevice e) {
-				if (e.getMessage().equals("There is no paper in the printer.")) {
-					thePrinterIsOutOfPaper();
-				} else {
-					thePrinterIsOutOfInk();
+			setReceiptToPrint(receipt);
+			for (int i = 0; i < receiptToPrint.length(); i++) {
+				try {
+					scs.printer.print(receiptToPrint.charAt(i));
 
+				} catch (EmptyDevice e) {
+					if (e.getMessage().equals("There is no paper in the printer.")) {
+						thePrinterIsOutOfPaper();
+					} else {
+						thePrinterIsOutOfInk();
+
+					}
+				} catch (OverloadedDevice e) {
+
+					System.out.println("Line too long");
 				}
-			} catch (OverloadedDevice e) {
-				
-				System.out.println("Line too long");
+
 			}
-
-		}
-
+		
 		scs.printer.cutPaper();
-		this.setPrintedReceipt(getReceiptToPrint().charAt(0)+ scs.printer.removeReceipt());
+		this.setPrintedReceipt(getReceiptToPrint().charAt(0) + scs.printer.removeReceipt());
 
 	}
 
@@ -52,15 +49,14 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 		this.printedReceipt = printedReceipt;
 	}
 
-
 	public String getPrintedReceipt() {
 		return this.printedReceipt;
 	}
-	
+
 	public String getReceiptToPrint() {
 		return this.receiptToPrint;
 	}
-	
+
 	public void setReceiptToPrint(String receiptToPrint) {
 		this.receiptToPrint = receiptToPrint;
 	}
