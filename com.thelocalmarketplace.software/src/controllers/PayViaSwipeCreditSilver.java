@@ -7,9 +7,9 @@ import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
-import com.jjjwelectronics.card.Card.CardSwipeData;
-import com.jjjwelectronics.card.CardReaderBronze;
+import com.jjjwelectronics.card.CardReaderSilver;
 import com.jjjwelectronics.card.CardReaderListener;
+import com.jjjwelectronics.card.CardReaderSilver;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 import exceptions.HoldNotAcceptedException;
@@ -19,7 +19,7 @@ import models.CreditCard;
 import powerutility.PowerGrid;
 
 /**
- * This class is the controller for bronze credit card reader
+ * This class is the controller for Silver credit card reader
  * 	Scenario pay by credit
  * 1. Customer: Swipes a credit Card
  * 2. System: Signals to the Bank the details of the credit card and the amount to be charged.
@@ -31,7 +31,7 @@ import powerutility.PowerGrid;
  * Exceptions:
  * 1. If the Bank does not approve the transaction, the remaining amount due will not change.
  */
-public class PayViaSwipeCreditBronze implements CardReaderListener {
+public class PayViaSwipeCreditSilver implements CardReaderListener {
 
 	private BigDecimal totalCostOfGroceries;
 	private BigDecimal creditLimit;
@@ -39,7 +39,7 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	private CardData creditCardData;
 	private CardIssuer bank;
 	private Card card;
-	private CardReaderBronze cardReaderBronze = new CardReaderBronze();
+	private CardReaderSilver cardReaderSilver = new CardReaderSilver();
 
 	public boolean creditCardSwiped;
 	public boolean creditCardDataRead;
@@ -79,20 +79,20 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 	 * @throws HoldNotAcceptedException is the exception for when the bank does not accept the hold
 	 * @throws PriceIsZeroOrNegativeException is the exception for when a price is zero or negative
 	 */
-	public PayViaSwipeCreditBronze(CreditCard creditCard, BigDecimal totalCostOfGroceries)
+	public PayViaSwipeCreditSilver(CreditCard creditCard, BigDecimal totalCostOfGroceries)
 			throws OverCreditException, IOException, HoldNotAcceptedException, PriceIsZeroOrNegativeException {
 
 		/**
 		 * Turning on the card reader
 		 */
-		cardReaderBronze.plugIn(PowerGrid.instance());
-		cardReaderBronze.turnOn();
-		cardReaderBronze.enable();
+		cardReaderSilver.plugIn(PowerGrid.instance());
+		cardReaderSilver.turnOn();
+		cardReaderSilver.enable();
 
 		/**
 		 * Registering listeners
 		 */
-		cardReaderBronze.register(this);
+		cardReaderSilver.register(this);
 
 		/**
 		 * Notifies that a card has been swiped
@@ -113,7 +113,7 @@ public class PayViaSwipeCreditBronze implements CardReaderListener {
 		this.creditCard = creditCard;
 		this.card = creditCard.getCard();
 		
-		this.creditCardData = this.cardReaderBronze.swipe(card);
+		this.creditCardData = this.cardReaderSilver.swipe(card);
 		this.creditLimit = creditCard.getCreditLimit();
 		this.bank = creditCard.getBank();
 
