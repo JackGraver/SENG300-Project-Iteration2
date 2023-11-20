@@ -1,4 +1,4 @@
-package com.thelocalmarketplace.software.addItem.AddItem;
+package com.thelocalmarketplace.software;
 
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import powerutility.PowerGrid;

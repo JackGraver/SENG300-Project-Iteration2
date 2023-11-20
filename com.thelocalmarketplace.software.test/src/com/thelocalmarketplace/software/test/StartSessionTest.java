@@ -4,8 +4,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-import com.thelocalmarketplace.software.addItem.*;
+import com.thelocalmarketplace.software.*;
 
+import com.thelocalmarketplace.software.StartSession;
 import powerutility.PowerGrid;
 
 
