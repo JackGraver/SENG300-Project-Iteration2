@@ -17,8 +17,8 @@ import powerutility.PowerGrid;
 public class DebitCardController implements CardReaderListener {
 	
 	public SelfCheckoutStationGold selfCheckoutStationGold;
-	public SelfCheckoutStationGold selfCheckoutStationBronze;
-	public SelfCheckoutStationGold selfCheckoutStationSilver;
+	public SelfCheckoutStationBronze selfCheckoutStationBronze;
+	public SelfCheckoutStationSilver selfCheckoutStationSilver;
 	public PowerGrid powerGrid; 
 	public CardIssuer bank;
 	public double amountDue;
@@ -30,14 +30,16 @@ public class DebitCardController implements CardReaderListener {
 		
 	}
 	
-	public DebitCardController (SelfCheckoutStationSilver ssg) {
-		selfCheckoutStationSilver.cardReader.register(this);
+	public DebitCardController (SelfCheckoutStationSilver ssv) {
+		this.selfCheckoutStationSilver = ssv;
+		this.selfCheckoutStationSilver.cardReader.register(this);
 		
 		
 	}
 	
-	public DebitCardController (SelfCheckoutStationBronze ssg) {
-		selfCheckoutStationBronze.cardReader.register(this);
+	public DebitCardController (SelfCheckoutStationBronze ssb) {
+		this.selfCheckoutStationBronze = ssb;
+		this.selfCheckoutStationBronze.cardReader.register(this);
 		
 	}
 	

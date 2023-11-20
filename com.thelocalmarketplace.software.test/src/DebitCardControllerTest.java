@@ -1,3 +1,8 @@
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -39,7 +44,7 @@ public class DebitCardControllerTest {
 	Card notDebitCard = new Card("Credit", "101010", "Jon Doe", "456");
 	
 	
-	DebitCardController testObject;
+	DebitCardController testObject; 
 	
     @Before
     public void setUp() {
@@ -65,7 +70,7 @@ public class DebitCardControllerTest {
             new BigDecimal("50"),new BigDecimal("100")};
     BigDecimal[] coinDenominationsConfigurationArray = {new BigDecimal("2"),
             new BigDecimal("1"), new BigDecimal("0.25"),
-            new BigDecimal("0.1"),new BigDecimal("0.05")};
+            new BigDecimal("0.1"),new BigDecimal("0.05")}; 
     
     
     SelfCheckoutStationGold.configureCurrency(Currency.getInstance("CAD"));
@@ -82,6 +87,36 @@ public class DebitCardControllerTest {
     stationGold = new SelfCheckoutStationGold();
     stationGold.plugIn(PowerGrid.instance());
     stationGold.turnOn();
+    
+    SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
+    SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
+    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
+    SelfCheckoutStationSilver.configureCoinDispenserCapacity(5);
+    SelfCheckoutStationSilver.configureCoinTrayCapacity(5);
+    SelfCheckoutStationSilver.configureScaleMaximumWeight(5);
+    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
+    SelfCheckoutStationSilver.configureScaleSensitivity(9);
+    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(5);
+    
+    stationSilver = new SelfCheckoutStationSilver();
+    stationSilver.plugIn(PowerGrid.instance());
+    stationSilver.turnOn();
+    
+    SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+    SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
+    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
+    SelfCheckoutStationBronze.configureCoinDispenserCapacity(5);
+    SelfCheckoutStationBronze.configureCoinTrayCapacity(5);
+    SelfCheckoutStationBronze.configureScaleMaximumWeight(5);
+    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
+    SelfCheckoutStationBronze.configureScaleSensitivity(9);
+    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(5);
+    
+    stationBronze = new SelfCheckoutStationBronze();
+    stationBronze.plugIn(PowerGrid.instance());
+    stationBronze.turnOn();
        
     }
     
@@ -91,10 +126,74 @@ public class DebitCardControllerTest {
     	testObject.setAmountDue(10);
     	testObject.setBank(cardIssuerRBC);
     	stationGold.cardReader.swipe(debitCardHighFund);
-    	Assert.assertEquals("123456", testObject.cardData.getNumber());
+    	assertEquals("123456", testObject.cardData.getNumber());
    
     }
     
+    @Test
+    public void testDebitCardControllerGoldStation() {
+        DebitCardController controller = new DebitCardController(stationGold);
+        assertNotNull(controller);
+    }
     
+    @Test
+    public void testDebitCardControllerSilverStation() {
+        DebitCardController controller = new DebitCardController(stationSilver);
+        assertNotNull(controller);
+    }
+    
+    @Test
+    public void testDebitCardControllerBronzeStation() {
+        DebitCardController controller = new DebitCardController(stationBronze);
+        assertNotNull(controller);
+    }
+    
+    @Test
+    public void testCardSwipedGoldStation() {
+        DebitCardController controller = new DebitCardController(stationGold);
+        controller.aCardHasBeenSwiped();
+    }
+    
+    @Test
+    public void testCardSwipedSilverStation() {
+        DebitCardController controller = new DebitCardController(stationSilver);
+        controller.aCardHasBeenSwiped();
+    }
+    
+    @Test
+    public void testCardSwipedBronzeStation() {
+        DebitCardController controller = new DebitCardController(stationBronze);
+        controller.aCardHasBeenSwiped();
+    }
+    
+    @Test
+    public void BankValidation() {
+    	boolean v = false;
+    	testObject = new DebitCardController(stationGold);
+    	testObject.setBank(cardIssuerRBC);
+    	if (testObject.getBank()==cardIssuerRBC)
+    		v = true;
+        assertTrue(v);
+    }
+    
+    
+    @Test
+    public void InvalidBank() throws InvalidArgumentSimulationException{
+        DebitCardController testObject = new DebitCardController(stationGold);
+        assertThrows(InvalidArgumentSimulationException.class, () -> {
+        	testObject.setBank(new CardIssuer("000",00));
+        });
+    }
+    
+    @Test
+    public void CardSwipeNotDebit() throws IOException{
+    	testObject = new DebitCardController(stationGold);
+    	testObject.setAmountDue(10);
+    	testObject.setBank(cardIssuerRBC);
+    	stationGold.cardReader.swipe(notDebitCard);
+    	assertEquals("101010", testObject.cardData.getNumber());
+    	
+    }
+       
     
 }
