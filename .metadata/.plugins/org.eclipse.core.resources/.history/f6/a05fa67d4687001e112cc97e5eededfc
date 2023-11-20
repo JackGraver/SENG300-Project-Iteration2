@@ -8,14 +8,11 @@ import com.tdc.DisabledException;
 import com.tdc.IComponent;
 import com.tdc.IComponentObserver;
 import com.tdc.coin.Coin;
-import com.tdc.coin.CoinDispenserObserver;
 import com.tdc.coin.CoinSlot;
 import com.tdc.coin.CoinSlotObserver;
 import com.tdc.coin.CoinStorageUnit;
 import com.tdc.coin.CoinValidator;
 import com.tdc.coin.CoinValidatorObserver;
-import com.tdc.coin.ICoinDispenser;
-import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 
 import powerutility.PowerGrid;
@@ -30,12 +27,11 @@ import powerutility.PowerGrid;
  * Controls the logic of coin insertion. Tracks amount due on bill as coins are inserted
  * during the current transaction.
  */
-public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObserver, CoinDispenserObserver {
-    private AbstractSelfCheckoutStation selfCheckoutStation;
+public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObserver {
+    private SelfCheckoutStationGold selfCheckoutStation;
     private PowerGrid powerGrid;
     private Coin coin;
     private BigDecimal amountDue;
-    private BigDecimal dispenserAmount = new BigDecimal("0.00");
     private boolean weightDiscrepancyDetected = false; //keep track of weight discrepancy 
 
     /**
@@ -75,10 +71,6 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
     public BigDecimal getAmount() {
         return amountDue;
     }
-    
-    public BigDecimal getDispenserAmount() {
-        return dispenserAmount;
-    }
 
     /**
      * Receipt customer receives. Not fully implemented yet.
@@ -86,11 +78,47 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
     private void printReceipt() {
         System.out.println("Transaction Complete");
     }
+
+    @Override
+    public void enabled(IComponent<? extends IComponentObserver> component) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void disabled(IComponent<? extends IComponentObserver> component) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void turnedOn(IComponent<? extends IComponentObserver> component) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void turnedOff(IComponent<? extends IComponentObserver> component) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void coinInserted(CoinSlot slot) {
+        // Ignore for now, later iteration?
+    }
+
+    @Override
+    public void validCoinDetected(CoinValidator validator, BigDecimal value) {
+    	if (weightDiscrepancyDetected == false) {
+    		amountDue = amountDue.subtract(value);
+            if (amountDue.compareTo(BigDecimal.ZERO) <= 0) {
+                printReceipt();
+            } else {
+                updateCustomer(amountDue);
+            }
+    	}
+        System.out.println("SYSTEM BLOCKED");
+
+        
+    }
     
-    
-    /**
-     * Evaluting the weight discrepancy 
-     */
     public boolean CheckForWeightDiscrepancy(double expectedWeight, double actualWeight) {
 		if (expectedWeight != actualWeight) {
 			return true; // a weight discrepancy has been detected
@@ -104,125 +132,8 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 
     }
 
- 
-
-    @Override
-    public void coinInserted(CoinSlot slot) {
-        // Ignore for now, later iteration?
-    }
-
-    @Override
-    public void validCoinDetected(CoinValidator validator, BigDecimal value) {
-    	//we assume its a valid coin everytime this function is called. thus, no need to valid coin check
-    	if (weightDiscrepancyDetected == false) {
-    		amountDue = amountDue.subtract(value);
-            if (amountDue.compareTo(BigDecimal.ZERO) == 0) {
-                printReceipt();
-            }
-            else if(amountDue.compareTo(BigDecimal.ZERO) < 0) {
-            	
-            	dispenserAmount = amountDue.abs();
-            	
-            	
-                printReceipt();
-
-            }
-           
-            else {
-                updateCustomer(amountDue);
-            }
-    	}
-        System.out.println("SYSTEM BLOCKED");
-
-        
-    }
-    
-    
-
     @Override
     public void invalidCoinDetected(CoinValidator validator) {
         // Rejection of coin, to be implemented in a later iteration?
     }
-
-
-
-	@Override
-	public void coinsFull(ICoinDispenser dispenser) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void coinsEmpty(ICoinDispenser dispenser) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void coinAdded(ICoinDispenser dispenser, Coin coin) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
-		
-		
-	}
-
-
-
-	@Override
-	public void coinsLoaded(ICoinDispenser dispenser, Coin... coins) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	/**
-     * where the coins that are considered change will be unloaded
-     */
-	@Override
-	public void coinsUnloaded(ICoinDispenser dispenser, Coin... coins) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void enabled(IComponent<? extends IComponentObserver> component) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void disabled(IComponent<? extends IComponentObserver> component) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void turnedOn(IComponent<? extends IComponentObserver> component) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	@Override
-	public void turnedOff(IComponent<? extends IComponentObserver> component) {
-		// TODO Auto-generated method stub
-		
-	}
 }

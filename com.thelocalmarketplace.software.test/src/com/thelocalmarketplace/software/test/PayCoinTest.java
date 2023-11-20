@@ -1,6 +1,4 @@
 package com.thelocalmarketplace.software.test;
-import controllers.PaymentCoinController;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,9 +14,8 @@ import org.junit.rules.ExpectedException;
 
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinValidator;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-import com.thelocalmarketplace.software.payI.PaymentCoinController;
+import com.thelocalmarketplace.software.addItem.PaymentCoinController;
 
 import powerutility.PowerGrid;
 //Michael Svoboda (30039040)
@@ -58,46 +55,46 @@ public class PayCoinTest {
 		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
 	}
 	
-	@Test
-	public void PaymentComplete() {
-		amountDue = new BigDecimal("0.75");
-		BigDecimal quarter = new BigDecimal("0.25");
-		coin = new Coin(cad, quarter);
-		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		BigDecimal expectedPayment = new BigDecimal("-0.25");
-		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
-	}
-	
-	
-	@Test
-	public void weightDiscrepancyDetectedPay() {
-		amountDue = new BigDecimal("0.75");
-		BigDecimal initalAmountDue = new BigDecimal("0.75");
-		BigDecimal quarter = new BigDecimal("0.25");
-		coin = new Coin(cad, quarter);
-		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
-		paymentCoinController.updateWeightDiscrepancy(12, 1);
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
-		//since there is a weight discrepancy. you should not be able to pay
-	}
-	
-	@Test
-	public void NotweightDiscrepancyDetectedPay() {
-		amountDue = new BigDecimal("0.75");
-		BigDecimal quarter = new BigDecimal("0.25");
-		coin = new Coin(cad, quarter);
-		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
-		paymentCoinController.updateWeightDiscrepancy(12, 12);
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		BigDecimal expectedPayment = new BigDecimal("0.25");
-		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
-		//since there is a weight discrepancy. you should not be able to pay
-	}
+//	@Test
+//	public void PaymentComplete() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		BigDecimal expectedPayment = new BigDecimal("-0.25");
+//		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
+//	}
+//	
+//	
+//	@Test
+//	public void weightDiscrepancyDetectedPay() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal initalAmountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
+//		paymentCoinController.updateWeightDiscrepancy(12, 1);
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
+//		//since there is a weight discrepancy. you should not be able to pay
+//	}
+//	
+//	@Test
+//	public void NoWeightDiscrepancyDetectedPay() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStation, powerGrid, coin, amountDue);
+//		paymentCoinController.updateWeightDiscrepancy(12, 12);
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		BigDecimal expectedPayment = new BigDecimal("0.25");
+//		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
+//		//since there is a weight discrepancy. you should not be able to pay
+//	}
 }

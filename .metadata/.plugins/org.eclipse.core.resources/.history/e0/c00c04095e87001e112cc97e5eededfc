@@ -15,7 +15,6 @@ import com.tdc.coin.CoinStorageUnit;
 import com.tdc.coin.CoinValidator;
 import com.tdc.coin.CoinValidatorObserver;
 import com.tdc.coin.ICoinDispenser;
-import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 
 import powerutility.PowerGrid;
@@ -31,7 +30,7 @@ import powerutility.PowerGrid;
  * during the current transaction.
  */
 public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObserver, CoinDispenserObserver {
-    private AbstractSelfCheckoutStation selfCheckoutStation;
+    private SelfCheckoutStationGold selfCheckoutStation;
     private PowerGrid powerGrid;
     private Coin coin;
     private BigDecimal amountDue;
