@@ -1,5 +1,6 @@
 package com.thelocalmarketplace.software.test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
@@ -50,12 +51,6 @@ public class AddItemControllerTest {
 	SelfCheckoutStationGold stationGold;
 	SelfCheckoutStationSilver stationSilver;
 	SelfCheckoutStationBronze stationBronze;
-
-	
-	ElectronicScaleGold electronicScale;
-	private List<Barcode> AddedItems;  
-	private long totalCost;
-	private double totalWeight;
 	
 	AddItemController testObject;
 	
@@ -102,6 +97,7 @@ public class AddItemControllerTest {
         BigDecimal[] coinDenominationsConfigurationArray = {new BigDecimal("2"),
                 new BigDecimal("1"), new BigDecimal("0.25"),
                 new BigDecimal("0.1"),new BigDecimal("0.05")};
+        
 		SelfCheckoutStationGold.configureCurrency(Currency.getInstance("CAD"));
 		SelfCheckoutStationGold.configureBanknoteDenominations(banknoteDenominationsConfiguration);
 	    SelfCheckoutStationGold.configureBanknoteStorageUnitCapacity(7);
@@ -112,12 +108,42 @@ public class AddItemControllerTest {
 	    SelfCheckoutStationGold.configureReusableBagDispenserCapacity(6);
 	    SelfCheckoutStationGold.configureScaleSensitivity(9);
 	    SelfCheckoutStationGold.configureCoinStorageUnitCapacity(5);
-    	    
     	stationGold = new SelfCheckoutStationGold();
     	stationGold.plugIn(PowerGrid.instance());
     	stationGold.turnOn();
-        
         startSession = new StartSession(stationGold);
+        startSession.startSession(PowerGrid.instance());
+        
+        SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationSilver.configureCoinDispenserCapacity(5);
+	    SelfCheckoutStationSilver.configureCoinTrayCapacity(5);
+	    SelfCheckoutStationSilver.configureScaleMaximumWeight(500);
+	    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationSilver.configureScaleSensitivity(9);
+	    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(5);
+    	stationSilver = new SelfCheckoutStationSilver();
+    	stationSilver.plugIn(PowerGrid.instance());
+    	stationSilver.turnOn();
+        startSession = new StartSession(stationSilver);
+        startSession.startSession(PowerGrid.instance());
+        
+        SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationBronze.configureCoinDispenserCapacity(5);
+	    SelfCheckoutStationBronze.configureCoinTrayCapacity(5);
+	    SelfCheckoutStationBronze.configureScaleMaximumWeight(500);
+	    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationBronze.configureScaleSensitivity(9);
+	    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(5);
+    	stationBronze = new SelfCheckoutStationBronze();
+    	stationBronze.plugIn(PowerGrid.instance());
+    	stationBronze.turnOn();
+        startSession = new StartSession(stationBronze);
         startSession.startSession(PowerGrid.instance());
     	
     	
@@ -145,9 +171,9 @@ public class AddItemControllerTest {
     
     // Testing that the TotalCost is updated correctly after an item is scanned
     @Test 
-    public void testTotalCost() {
+    public void testTotalCostGold() {
     	System.out.println();
-    	System.out.println("Test 1:");
+    	System.out.println("Test 1.1:");
     	
     	testObject = new AddItemController(stationGold, startSession);
     	
@@ -156,6 +182,31 @@ public class AddItemControllerTest {
     	assertEquals(2L, testObject.getTotalCost());
     }
     
+ // Testing that the TotalCost is updated correctly after an item is scanned
+    @Test 
+    public void testTotalCostSilver() {
+    	System.out.println();
+    	System.out.println("Test 1.2:");
+    	
+    	testObject = new AddItemController(stationSilver, startSession);
+    	
+    	stationSilver.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
+    	
+    	assertEquals(2L, testObject.getTotalCost());
+    }
+    
+    // Testing that the TotalCost is updated correctly after an item is scanned
+    @Test 
+    public void testTotalCostBronze() {
+    	System.out.println();
+    	System.out.println("Test 1.3:");
+    	
+    	testObject = new AddItemController(stationBronze, startSession);
+    	
+    	stationBronze.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
+    	
+    	assertEquals(2L, testObject.getTotalCost());
+    }
     
    
    
@@ -272,16 +323,12 @@ public class AddItemControllerTest {
     
     
     
-   
-    
     class ConcreteItem extends Item {
 	    public ConcreteItem(Mass mass) {
 	        super(mass);
 	 }
 	}
 	
-    
-    
 	
     @Test
     public void testWeightDiscrepancyNoScan() {
@@ -386,8 +433,57 @@ public class AddItemControllerTest {
     
     }
     
+    @Test
+    public void testDeviceEnable() throws IOException {
+    	testObject = new AddItemController(stationGold, startSession);
+    	stationGold.mainScanner.enable();
+    	assertTrue(testObject.isEnabled);
+    	stationGold.mainScanner.disable();
+    	assertFalse(testObject.isEnabled);	
+    	
+    }
+    
+    @Test
+    public void testDeviceOn() throws IOException {
+    	testObject = new AddItemController(stationGold, startSession);
+    	stationGold.mainScanner.turnOff();
+    	assertFalse(testObject.isOn);
+    	stationGold.mainScanner.turnOn();
+    	assertTrue(testObject.isOn);
+   
+    	
+    }
+    
+	@Test
+    public void testOverload() throws IOException {  
+    	testObject = new AddItemController(stationGold, startSession);
+ 
+    	//Heavy item placed in bagging area - should cause Overload
+    	stationGold.baggingArea.addAnItem(new ConcreteItem(new Mass (weightHippo)));
+    	assertTrue(testObject.isOverloaded);
+    	
+    	
+    }
+    
+	
+	@Test
+    public void testAddItemToHandleDiscrepancy() throws IOException { 
+		System.out.println();
+    	System.out.println("Test 15:");
+    	
+    	testObject = new AddItemController(stationGold, startSession);
+    	 
+    	//Item (milk) NOT placed in bagging area - should detect discrepancy
+    	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
+    	assertTrue(testObject.CheckWeightDescrepency());
+    	
+    	//Add item to fix discrepancy
+    	testObject.AddItemToHandleDiscrepancy(new ConcreteItem(new Mass (weightEggs)));
+    	assertFalse(testObject.CheckWeightDescrepency());
+    	
+    	
+    }
     
  
-    
 
 }
