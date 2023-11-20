@@ -31,6 +31,8 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
     public Boolean canChange;
     public Boolean enabled;
     public Boolean turnedOn;
+    private ReceiptPrinterController printer;
+    private BigDecimal totalPrice;
 
     public payWithBanknoteBronzeController(SelfCheckoutStationBronze station) {
         bronzeStation = station;
@@ -38,6 +40,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
         bronzeStation.banknoteStorage.attach(this);
         bronzeStation.banknoteInput.attach(this);
         bronzeStation.banknoteOutput.attach(this);
+        printer = new ReceiptPrinterController(station);
         banknoteInsertedNum = 0;
         goodBanknoteNum = 0;
         badBanknoteNum = 0;
@@ -142,7 +145,8 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
 
     // set the price of the bill, should be done after choosing paying by banknotes
     public void setTotalPrice(BigDecimal price){
-        remainingAmount = price;
+        totalPrice = price;
+        remainingAmount = totalPrice;
     }
 
     // inputting one or more banknotes, and then it will complete paying process automatically.
@@ -181,7 +185,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
                             //When remaining amount is 0, the banknotes paid are enough, and do not need to change
                             System.out.println("the remaining amount is zero.");
-                            //printReceipt();
+                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
                             payingCompleted = true;
                         }
                         else {
@@ -193,7 +197,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                                 //signalAttendant();
                                 //suspendStation();
                             }
-                            //printReceipt();
+                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
                             payingCompleted = true;
                         }
                     }

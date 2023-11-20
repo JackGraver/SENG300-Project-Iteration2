@@ -31,6 +31,9 @@ public class payWithBanknoteGoldController implements BanknoteInsertionSlotObser
     public Boolean canChange;
     public Boolean enabled;
     public Boolean turnedOn;
+    private ReceiptPrinterController printer;
+    private BigDecimal totalPrice;
+
 
     public payWithBanknoteGoldController(SelfCheckoutStationGold station){
         goldStation = station;
@@ -38,6 +41,7 @@ public class payWithBanknoteGoldController implements BanknoteInsertionSlotObser
         goldStation.banknoteStorage.attach(this);
         goldStation.banknoteInput.attach(this);
         goldStation.banknoteOutput.attach(this);
+        printer = new ReceiptPrinterController(station);
         banknoteInsertedNum = 0;
         goodBanknoteNum = 0;
         badBanknoteNum = 0;
@@ -141,7 +145,8 @@ public class payWithBanknoteGoldController implements BanknoteInsertionSlotObser
     }
 
     public void setTotalPrice(BigDecimal price){
-        remainingAmount = price;
+        totalPrice = price;
+        remainingAmount = totalPrice;
     }
 
     public void payWithBanknote(Banknote... banknotes) throws DisabledException, CashOverloadException {
@@ -166,7 +171,7 @@ public class payWithBanknoteGoldController implements BanknoteInsertionSlotObser
                         }
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
                             System.out.println("the remaining amount is zero.");
-                            //printReceipt();
+                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
                             payingCompleted = true;
                         }
                         else {
@@ -176,7 +181,7 @@ public class payWithBanknoteGoldController implements BanknoteInsertionSlotObser
                                 //signalAttendant();
                                 //suspendStation();
                             }
-                            //printReceipt();
+                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
                             payingCompleted = true;
                         }
                     }
