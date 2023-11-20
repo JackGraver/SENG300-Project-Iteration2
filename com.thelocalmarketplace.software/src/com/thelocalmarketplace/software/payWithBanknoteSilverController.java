@@ -171,6 +171,7 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
                             System.out.println("the remaining amount is zero.");
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
+                            System.out.printIn(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                         else {
@@ -181,6 +182,7 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                                 //suspendStation();
                             }
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
+                            System.out.printIn(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                     }
