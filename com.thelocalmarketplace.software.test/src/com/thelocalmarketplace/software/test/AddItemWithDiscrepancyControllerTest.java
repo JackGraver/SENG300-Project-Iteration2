@@ -23,7 +23,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
-import com.thelocalmarketplace.software.AddItemController;
+import com.thelocalmarketplace.software.AddItemWithDiscrepancyController;
 import com.thelocalmarketplace.software.StartSession;
 
 import powerutility.PowerGrid;
@@ -47,12 +47,12 @@ import org.junit.runners.JUnit4;
 // The only two variables that we have for testing are the TotalWeight and the TotalPrice
 // Every test checks the expected behaviour of these two
 // We test each branch of the function for true, false, and null values
-public class AddItemControllerTest {
+public class AddItemWithDiscrepancyControllerTest {
 	SelfCheckoutStationGold stationGold;
 	SelfCheckoutStationSilver stationSilver;
 	SelfCheckoutStationBronze stationBronze;
 	
-	AddItemController testObject;
+	AddItemWithDiscrepancyController testObject;
 	
 	
 	BarcodeScannerGold scanner;
@@ -163,10 +163,10 @@ public class AddItemControllerTest {
     	Numeral[] barcodeDigitsUnknown= new Numeral[] { Numeral.one, Numeral.one, Numeral.one, Numeral.four, Numeral.five };
     	Barcode barcodeUnknown = new Barcode(barcodeDigitsUnknown);
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeUnknown, new Mass (weightChips)));
     	
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     }
     
     // Testing that the TotalCost is updated correctly after an item is scanned
@@ -175,7 +175,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 1.1:");
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
     	
@@ -188,7 +188,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 1.2:");
     	
-    	testObject = new AddItemController(stationSilver, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationSilver, startSession);
     	
     	stationSilver.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
     	
@@ -201,7 +201,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 1.3:");
     	
-    	testObject = new AddItemController(stationBronze, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationBronze, startSession);
     	
     	stationBronze.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
     	
@@ -216,7 +216,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 2:");
     	
-		testObject = new AddItemController(stationGold, startSession);
+		testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
 		
 		stationGold.mainScanner.scan(new BarcodedItem (barcodeChips, new Mass (weightChips)));
     	assertEquals(1, testObject.getTotalWeight(), 0.01);
@@ -229,9 +229,9 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 3:");
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
 
     	assertEquals(6L, testObject.getTotalCost());
@@ -248,9 +248,9 @@ public class AddItemControllerTest {
     	StartSession startSessionF = new StartSession(stationGold);
     	assertEquals(false, startSessionF.isInSession());
     	
-    	testObject = new AddItemController(stationGold, startSessionF);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSessionF);
     	
-    	assertTrue(!AddItemController.isBlocked());
+    	assertTrue(!AddItemWithDiscrepancyController.isBlocked());
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
     	
     	//Should NOT scan because not in Start Session
@@ -266,9 +266,9 @@ public class AddItemControllerTest {
     	System.out.println();
     	assertEquals(true, startSession.isInSession());
     	
-    	testObject = new AddItemController(stationGold, startSession);
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     	
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
     	
@@ -286,8 +286,8 @@ public class AddItemControllerTest {
     	System.out.println("Test 6:");
     	System.out.println();
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     }
     
     
@@ -297,10 +297,10 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 7:");
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
-    	AddItemController.unblock();
-    	assertFalse(AddItemController.isBlocked());
+    	AddItemWithDiscrepancyController.unblock();
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     }
     
 
@@ -310,7 +310,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 8:");
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeHippo, new Mass (weightHippo)));
  
     	//Expected weight should NOT change because over system limit
@@ -335,7 +335,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 9:");
   
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
     	stationGold.baggingArea.addAnItem(new ConcreteItem(new Mass (weightEggs)));
  
@@ -350,7 +350,7 @@ public class AddItemControllerTest {
     public void testNoWeightDiscrepancy() {
     	System.out.println();
     	System.out.println("Test 10:");
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
     	stationGold.baggingArea.addAnItem(new ConcreteItem(new Mass (weightEggs)));
  
@@ -365,7 +365,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 11:");
   
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
     	stationGold.baggingArea.addAnItem(new ConcreteItem(new Mass (weightEggs)));
  
@@ -382,7 +382,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 12:");
   
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
  
     	//Incorrect item (milk) placed in bagging area - should detect discrepancy
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
@@ -407,7 +407,7 @@ public class AddItemControllerTest {
     	
     	Numeral[] barcodeDigitsNull= new Numeral[] { Numeral.six, Numeral.six, Numeral.six, Numeral.six, Numeral.six };
     	Barcode barcodeNull = new Barcode(barcodeDigitsNull);
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	testObject.aBarcodeHasBeenScanned(scanner, barcodeNull);
     	double delta = 0.01;
     	assertNotEquals(2L, testObject.getTotalCost());
@@ -420,7 +420,7 @@ public class AddItemControllerTest {
     	System.out.println();
     	System.out.println("Test 14:");
   
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
  
     	//Scan Item (should have weight discrepancy as it is not added to bagging area)
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));
@@ -435,7 +435,7 @@ public class AddItemControllerTest {
     
     @Test
     public void testDeviceEnable() throws IOException {
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.enable();
     	assertTrue(testObject.isEnabled);
     	stationGold.mainScanner.disable();
@@ -445,7 +445,7 @@ public class AddItemControllerTest {
     
     @Test
     public void testDeviceOn() throws IOException {
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	stationGold.mainScanner.turnOff();
     	assertFalse(testObject.isOn);
     	stationGold.mainScanner.turnOn();
@@ -456,7 +456,7 @@ public class AddItemControllerTest {
     
 	@Test
     public void testOverload() throws IOException {  
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
  
     	//Heavy item placed in bagging area - should cause Overload
     	stationGold.baggingArea.addAnItem(new ConcreteItem(new Mass (weightHippo)));
@@ -471,7 +471,7 @@ public class AddItemControllerTest {
 		System.out.println();
     	System.out.println("Test 15:");
     	
-    	testObject = new AddItemController(stationGold, startSession);
+    	testObject = new AddItemWithDiscrepancyController(stationGold, startSession);
     	 
     	//Item (milk) NOT placed in bagging area - should detect discrepancy
     	stationGold.mainScanner.scan(new BarcodedItem (barcodeEggs, new Mass (weightEggs)));

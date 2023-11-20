@@ -24,7 +24,7 @@ import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import powerutility.PowerGrid;
 
 
-public class AddItemController implements BarcodeScannerListener, ElectronicScaleListener {
+public class AddItemWithDiscrepancyController implements BarcodeScannerListener, ElectronicScaleListener {
 	public SelfCheckoutStationGold selfCheckoutStationGold;
 	public SelfCheckoutStationBronze selfCheckoutStationBronze;
 	public SelfCheckoutStationSilver selfCheckoutStationSilver;
@@ -42,7 +42,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	public boolean isOverloaded;
 	public static boolean isBlocked = false;
 	
-	public AddItemController (SelfCheckoutStationGold ssg, StartSession startSess) {
+	public AddItemWithDiscrepancyController (SelfCheckoutStationGold ssg, StartSession startSess) {
 		this.selfCheckoutStation= ssg;
         this.selfCheckoutStation.mainScanner.register(this);
         this.selfCheckoutStation.baggingArea.register(this);
@@ -55,7 +55,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	
 	}
 	
-	public AddItemController (SelfCheckoutStationSilver sss, StartSession startSess ) {
+	public AddItemWithDiscrepancyController (SelfCheckoutStationSilver sss, StartSession startSess ) {
 		this.selfCheckoutStation= sss;
         this.selfCheckoutStation.mainScanner.register(this);
         this.selfCheckoutStation.baggingArea.register(this);
@@ -67,7 +67,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	
 	}
 	
-	public AddItemController (SelfCheckoutStationBronze ssb, StartSession startSess ) {
+	public AddItemWithDiscrepancyController (SelfCheckoutStationBronze ssb, StartSession startSess ) {
 		this.selfCheckoutStation= ssb;
         this.selfCheckoutStation.mainScanner.register(this);
         this.selfCheckoutStation.baggingArea.register(this);
@@ -91,9 +91,9 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 		
 		//Ignores logic if session has not been started or session is blocked 
-		if(this.startSession.isInSession() && !AddItemController.isBlocked()) {	
+		if(this.startSession.isInSession() && !AddItemWithDiscrepancyController.isBlocked()) {	
 			
-			AddItemController.block();			// Block further customer interaction 
+			AddItemWithDiscrepancyController.block();			// Block further customer interaction 
 			
 			 BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
 			 if (product != null) {
@@ -120,7 +120,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 			        System.out.println("Barcode not found: " + barcode.toString());
 			 } 
 		}
-		AddItemController.unblock();		//Unblock
+		AddItemWithDiscrepancyController.unblock();		//Unblock
 
 	}
 	
@@ -205,7 +205,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
         if (difference.compareTo(sens) > 0) {
 			System.out.println("Discrepancy found! Attendant notified!");
 			foundDiscrepancy = true;
-			AddItemController.block();
+			AddItemWithDiscrepancyController.block();
 			return true;
 		}
         else {
@@ -249,7 +249,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	 * @return void
 	 */
 	public void DoNotBagToHandleDiscrepancy(Item notBag){
-		AddItemController.unblock();
+		AddItemWithDiscrepancyController.unblock();
 		foundDiscrepancy = false;
 		
 		//Change expected total weight value if not bagging items
@@ -266,7 +266,7 @@ public class AddItemController implements BarcodeScannerListener, ElectronicScal
 	 * @return void
 	 */
 	public void AttendentOverrideToHandleDiscrepancy(){			
-			AddItemController.unblock();
+			AddItemWithDiscrepancyController.unblock();
 			foundDiscrepancy = false;
 			
 			//Reset Expected Weight to match Actual Weight after override
