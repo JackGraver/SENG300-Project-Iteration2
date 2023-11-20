@@ -5,30 +5,30 @@ import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.printer.ReceiptPrinterListener;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
-
-import powerutility.PowerGrid;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 
 public class ReceiptPrinterController implements ReceiptPrinterListener {
 
-	private SelfCheckoutStationBronze scs;
-	public String recieptToPrint;
+	public SelfCheckoutStationGold scs;
+	private String receiptToPrint;
+	private AttendantSimulation attendant;
 
-	public ReceiptPrinterController(SelfCheckoutStationBronze scs) {
+	public ReceiptPrinterController(SelfCheckoutStationGold scs) {
 		this.scs = scs;
 		this.scs.printer.register(this);
+		this.attendant = new AttendantSimulation(scs, this);
 	}
 
 
 	public void printReceipt(String reciept) {
-		for (int i = 0; i < reciept.length(); i++) {
+		setReceiptToPrint(reciept);
+		for (int i = 0; i < receiptToPrint.length(); i++) {
 			try {
-				scs.printer.print(reciept.charAt(i));
+				scs.printer.print(receiptToPrint.charAt(i));
 				
 			} catch (EmptyDevice e) {
-				
-				System.out.println("Out of ink or paper");
-
+				thePrinterIsOutOfPaper();
+				thePrinterIsOutOfInk();
 			} catch (OverloadedDevice e) {
 				
 				System.out.println("Line too long");
@@ -37,9 +37,17 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 		}
 	}
 
-	public String getReciept() {
+	public String getPrintedReceipt() {
 		this.scs.printer.cutPaper();
 		return this.scs.printer.removeReceipt();
+	}
+	
+	public String getRecieptToPrint() {
+		return this.receiptToPrint;
+	}
+	
+	public void setReceiptToPrint(String receiptToPrint) {
+		this.receiptToPrint = receiptToPrint;
 	}
 
 	@Override
@@ -68,13 +76,24 @@ public class ReceiptPrinterController implements ReceiptPrinterListener {
 
 	@Override
 	public void thePrinterIsOutOfPaper() {
-		// TODO Auto-generated method stub
+		try {
+			attendant.outOfPaper();
+		} catch (OverloadedDevice e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
 	@Override
 	public void thePrinterIsOutOfInk() {
-		// TODO Auto-generated method stub
+		System.out.println("hello");
+		try {
+			attendant.outOfInk();
+		} catch (OverloadedDevice e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
