@@ -186,6 +186,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                             //When remaining amount is 0, the banknotes paid are enough, and do not need to change
                             System.out.println("the remaining amount is zero.");
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
+                            System.out.printIn(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                         else {
@@ -198,6 +199,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                                 //suspendStation();
                             }
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
+                            System.out.printIn(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                     }
