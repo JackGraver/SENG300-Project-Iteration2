@@ -1,31 +1,23 @@
-/*
- * Md Abu Sinan 
- * Jack Graver
-Christopher Thomson
-Shaim Momin
-Raja Muhammed Omar
-Michael Hoang
-Fei Ding
-Dylan Dizon
-Shenuk Perera
-Darpal Patel
-
-Iteration 2 SENG 300 , Md Abu Sinan worked on this part for the Remove Item use case
-*/
-
-
-
-
-
 package com.thelocalmarketplace.software;
+
 import powerutility.PowerGrid;
 import java.util.HashMap;
 import java.util.Map;
-import com.thelocalmarketplace.software.addItem.*;// for start session logic 
+import com.thelocalmarketplace.software.AddItem.*;// for start session logic 
 import com.thelocalmarketplace.hardware.*;//  product
-import com.thelocalmarketplace.hardware.external.*;// product database ; 
 
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class Cart {
 	long totalCost; // creating an instance
 	private Map <Product, Integer> products; // creating a hashmap for individual products and its quantity
@@ -84,6 +76,4 @@ public class Cart {
 		
 		
 	}
-	
-	
 }

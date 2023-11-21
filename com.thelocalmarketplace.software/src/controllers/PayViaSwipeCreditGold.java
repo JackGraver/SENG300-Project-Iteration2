@@ -19,6 +19,17 @@ import models.CreditCard;
 import powerutility.PowerGrid;
 
 /**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+
  * This class is the controller for Gold credit card reader Scenario pay by
  * credit 1. Customer: Swipes a credit Card 2. System: Signals to the Bank the
  * details of the credit card and the amount to be charged. 3. Bank: Signals to

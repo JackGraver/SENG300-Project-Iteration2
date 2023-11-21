@@ -1,8 +1,11 @@
+package com.thelocalmarketplace.software;
+
 import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.IComponent;
 import com.tdc.IComponentObserver;
 import com.thelocalmarketplace.hardware.*;
+import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
 import com.tdc.banknote.*;
 
 import java.math.BigDecimal;
@@ -10,7 +13,18 @@ import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class payWithBanknoteSilverController implements BanknoteInsertionSlotObserver, BanknoteValidatorObserver, BanknoteStorageUnitObserver, BanknoteDispensationSlotObserver{
     private final SelfCheckoutStationSilver silverStation;
     public BigDecimal remainingAmount;
@@ -171,7 +185,7 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
                             System.out.println("the remaining amount is zero.");
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.printIn(printer.getPrintedReceipt());
+                            System.out.println(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                         else {
@@ -182,7 +196,7 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                                 //suspendStation();
                             }
                             printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.printIn(printer.getPrintedReceipt());
+                            System.out.println(printer.getPrintedReceipt());
                             payingCompleted = true;
                         }
                     }

@@ -1,3 +1,5 @@
+package com.thelocalmarketplace.software.test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -9,28 +11,30 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.jjjwelectronics.*;
 import com.jjjwelectronics.card.*;
-import com.jjjwelectronics.card.Card.CardData;
-import com.jjjwelectronics.printer.*;
-import com.tdc.*;
 
-import com.thelocalmarketplace.*;
 import com.thelocalmarketplace.hardware.*;
 import com.thelocalmarketplace.hardware.external.*;
+import com.thelocalmarketplace.software.DebitCardController;
+
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
-import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
-import ca.ucalgary.seng300.simulation.SimulationException;
 
 import powerutility.PowerGrid;
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class DebitCardControllerTest {
 	
 	SelfCheckoutStationGold stationGold;

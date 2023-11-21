@@ -19,8 +19,8 @@ import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
-import com.thelocalmarketplace.software.addItem.AddItemController;
-import com.thelocalmarketplace.software.addItem.StartSession;
+import com.thelocalmarketplace.software.AddItem.AddItemWithDiscrepancyController;
+import com.thelocalmarketplace.software.AddItem.StartSession;
 
 import powerutility.PowerGrid;
 
@@ -39,7 +39,18 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 // The only two variables that we have for testing are the TotalWeight and the TotalPrice
 // Every test checks the expected behaviour of these two
 // We test each branch of the function for true, false, and null values
@@ -50,7 +61,7 @@ public class AddItemControllerTest {
 	private List<Barcode> AddedItems;  
 	private long totalCost;
 	private double totalWeight;
-	AddItemController addItemController;
+	AddItemWithDiscrepancyController addItemController;
 	BarcodeScannerGold scanner;
 	StartSession startSession;
 	
@@ -97,11 +108,8 @@ public class AddItemControllerTest {
 		} catch (InvalidPINException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-    	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSession);
+    	addItemController = new AddItemWithDiscrepancyController(selfCheckoutStation, startSession);
     	
         ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcodeChips, productBarChips);
         ProductDatabases.BARCODED_PRODUCT_DATABASE.put(barcodeEggs, productBarEggs);
@@ -134,7 +142,7 @@ public class AddItemControllerTest {
     @Test 
     public void barcodeHasBeenScannedInSessionNotBlocked() {
     	System.out.println();
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeEggs);
     	double delta = 0.01;
 
@@ -147,9 +155,9 @@ public class AddItemControllerTest {
     	System.out.println();
     	StartSession startSessionF = new StartSession(selfCheckoutStation);
     	assertEquals(false, startSessionF.isInSession());
-    	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSessionF);
-    	AddItemController.unblock();
-    	assertFalse(AddItemController.isBlocked());
+    	addItemController = new AddItemWithDiscrepancyController(selfCheckoutStation, startSessionF);
+    	AddItemWithDiscrepancyController.unblock();
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
         // Make assertions on the captured output
     	double delta = 0.01;
@@ -167,14 +175,11 @@ public class AddItemControllerTest {
 		} catch (InvalidPINException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
     	assertEquals(true, startSessionT.isInSession());
-    	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSessionT);
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	addItemController = new AddItemWithDiscrepancyController(selfCheckoutStation, startSessionT);
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
     	double delta = 0.01;
     	assertNotEquals(2L, addItemController.getTotalCost());
@@ -188,9 +193,9 @@ public class AddItemControllerTest {
     	// It would be good to have a listener to check quickly if an item has been scanned
     	StartSession startSessionF = new StartSession(selfCheckoutStation);
     	assertEquals(false, startSessionF.isInSession());
-    	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSessionF);
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	addItemController = new AddItemWithDiscrepancyController(selfCheckoutStation, startSessionF);
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
         // Make assertions on the captured output
     	double delta = 0.01;
@@ -204,9 +209,9 @@ public class AddItemControllerTest {
     	System.out.println();
     	StartSession startSessionF = null;
     	assertEquals(null, startSessionF);
-    	addItemController = new AddItemController(selfCheckoutStation, powerGrid, startSession);
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	addItemController = new AddItemWithDiscrepancyController(selfCheckoutStation, startSession);
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
         // Make assertions on the captured output
     	double delta = 0.01;
@@ -218,15 +223,15 @@ public class AddItemControllerTest {
     @Test 
     public void testSelfCheckoutBlocked() {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
-    	AddItemController.block();
-    	assertTrue(AddItemController.isBlocked());
+    	AddItemWithDiscrepancyController.block();
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     }
     
     @Test 
     public void testSelfCheckoutNotBlocked() {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
-    	AddItemController.unblock();
-    	assertFalse(AddItemController.isBlocked());
+    	AddItemWithDiscrepancyController.unblock();
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     }
     
     @Test
@@ -255,7 +260,7 @@ public class AddItemControllerTest {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
     	Mass massOnScale = new Mass(0.1);
     	addItemController.theMassOnTheScaleHasChanged(selfCheckoutStation.baggingArea, massOnScale);
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     	
     }
     
@@ -265,27 +270,22 @@ public class AddItemControllerTest {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
     	Mass massOnScale = new Mass(200000);
     	addItemController.theMassOnTheScaleHasChanged(selfCheckoutStation.baggingArea, massOnScale);
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     }
     
     @Test
     public void testHandleDiscBlocked() {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
-    	AddItemController.block();
+    	AddItemWithDiscrepancyController.block();
     	addItemController.AddOrRemoveItemToHandleDiscrepancy();
-    	assertTrue(AddItemController.isBlocked());
+    	assertTrue(AddItemWithDiscrepancyController.isBlocked());
     }
     
     @Test
     public void testHandleDiscNotBlocked() {
     	addItemController.aBarcodeHasBeenScanned(scanner, barcodeChips);
-    	AddItemController.unblock();
+    	AddItemWithDiscrepancyController.unblock();
     	addItemController.AddOrRemoveItemToHandleDiscrepancy();
-    	assertFalse(AddItemController.isBlocked());
+    	assertFalse(AddItemWithDiscrepancyController.isBlocked());
     }
-    
-    
-
-    
-
 }

@@ -1,3 +1,5 @@
+package com.thelocalmarketplace.software;
+
 import com.jjjwelectronics.*;
 import com.jjjwelectronics.card.*;
 import com.jjjwelectronics.card.Card.CardData;
@@ -5,11 +7,21 @@ import com.thelocalmarketplace.hardware.*;
 import com.thelocalmarketplace.hardware.external.*;
 import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
 
-
 import powerutility.PowerGrid;
 
 
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class DebitCardController implements CardReaderListener {
 	
 	public SelfCheckoutStationGold selfCheckoutStationGold;

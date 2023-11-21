@@ -1,20 +1,15 @@
-package com.thelocalmarketplace.software.addItem;
+package com.thelocalmarketplace.software.AddItem;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
-import java.math.BigInteger;
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
-import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.AbstractElectronicScale;
-import com.jjjwelectronics.scale.ElectronicScaleSilver;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 import com.jjjwelectronics.scanner.Barcode;
-import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
@@ -22,6 +17,18 @@ import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class HandleBulkyItemSilverController implements BarcodeScannerListener, ElectronicScaleListener{
 	private final SelfCheckoutStationSilver scs;
 	private boolean approval;
