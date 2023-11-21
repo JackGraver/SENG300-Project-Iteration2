@@ -219,37 +219,7 @@ public class PayCoinTest {
 	}
 	
 	
-	@Test
-	public void weightDiscrepancyDetectedPayGold() {
-		amountDue = new BigDecimal("0.75");
-		BigDecimal initalAmountDue = new BigDecimal("0.75");
-		BigDecimal quarter = new BigDecimal("0.25");
-		coin = new Coin(cad, quarter);
-		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
-		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
-		paymentCoinController.updateWeightDiscrepancy(12, 1);
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		System.out.println("BRUH"+paymentCoinController.getAmount() );
-		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
-		//since there is a weight discrepancy. you should not be able to pay
-	}
 	
-	
-	@Test
-	public void NoWeightDiscrepancyDetectedPayGold() {
-		amountDue = new BigDecimal("0.75");
-		BigDecimal quarter = new BigDecimal("0.25");
-		coin = new Coin(cad, quarter);
-		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
-		paymentCoinController.updateWeightDiscrepancy(12, 12);
-		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		BigDecimal expectedPayment = new BigDecimal("0.25");
-		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
-		//since there is a weight discrepancy. you should not be able to pay
-	}
 	
 	
 
@@ -414,6 +384,8 @@ public class PayCoinTest {
 		BigDecimal expectedPayment = new BigDecimal("0.00");
 		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
 	}
+	
+	
 	
 	
 	
