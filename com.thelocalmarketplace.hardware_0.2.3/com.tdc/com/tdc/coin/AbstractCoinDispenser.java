@@ -182,7 +182,7 @@ public abstract class AbstractCoinDispenser extends AbstractComponent<CoinDispen
 		Coin coin = queue.remove();
 
 		notifyCoinRemoved(coin);
-		//sink.receive(coin);
+		sink.receive(coin);
 
 		if(queue.isEmpty())
 			notifyCoinsEmpty();

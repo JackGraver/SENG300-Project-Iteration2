@@ -49,7 +49,7 @@ public class PayCoinTest {
 	public CoinDispenserBronze coinDispenserBronze;
 	public CoinDispenserGold coinDispenserGold;
 	public CoinSlot coinSlot;
-	public PaymentCoinController paymentCoinController;
+	public com.thelocalmarketplace.software.PaymentCoinController paymentCoinController;
 	public PowerGrid powerGrid;
 	private Coin coin;
 	private Coin coinDime;
@@ -62,9 +62,8 @@ public class PayCoinTest {
 	private BigDecimal nickle;
 	private Coin coinNickle;
 	private CoinTray coinTray;
-	public  Sink<Coin> standardSinks;
-	
-	
+
+	public Sink<Coin> standardSinks;
 	@Before
 	public void Setup() throws SimulationException, CashOverloadException {
 		powerGrid = PowerGrid.instance();
@@ -76,6 +75,7 @@ public class PayCoinTest {
 	            new BigDecimal("1"), new BigDecimal("0.25"),
 	            new BigDecimal("0.1"),new BigDecimal("0.05")}; 
 	    cad = Currency.getInstance("CAD");
+	    
 	    
 		SelfCheckoutStationGold.resetConfigurationToDefaults();
         SelfCheckoutStationGold.configureCurrency(Currency.getInstance("CAD"));
@@ -129,14 +129,15 @@ public class PayCoinTest {
 		coinDispenserGold = new CoinDispenserGold(10);
 		coinDispenserGold.connect(powerGrid);
 		coinDispenserGold.activate();
-		
+		coinDispenserGold.sink = standardSinks;
 		//loading the dispenser with coins for it to dispense to customer the change
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
-	
+		coinDispenserGold.load(coinDime);// adds 0.10
+
 		System.out.println("should be 5 or greater: "+coinDispenserGold.size());
 		//dispenser has 0.50 to dispence as change now for gold
 		
@@ -214,12 +215,11 @@ public class PayCoinTest {
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//bro did not have anymore dimes so they used 0.50. thus, the machine need to dispense change
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
 		//dispenseAmountNeeded should be 0.10 back in change
-		
-		//paymentCoinController.coinRemoved(coinDispenserGold, coinDime);//here we give back a dime in change.
+		coinDispenserGold.sink = standardSinks;
+
 		//therefore, dispense amount needed now should be 0.00
 		BigDecimal expectedPayment = new BigDecimal("0.00");
-		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
-		paymentCoinController.dispenseCoin(coinDispenserBronze, coinDime);
+		paymentCoinController.dispenseCoin(coinDispenserGold, coinDime);
 		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
 
 		assertEquals(0, paymentCoinController.getDispenserAmountNeeded().compareTo(expectedPayment));
@@ -339,7 +339,7 @@ public class PayCoinTest {
 		//therefore, dispense amount needed now should be 0.00
 		BigDecimal expectedPayment = new BigDecimal("0.00");
 		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
-		paymentCoinController.dispenseCoin(coinDispenserBronze, coinDime);
+		paymentCoinController.dispenseCoin(coinDispenserGold, coinDime);
 		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
 
 		assertEquals(0, paymentCoinController.getDispenserAmountNeeded().compareTo(expectedPayment));
@@ -355,7 +355,6 @@ public class PayCoinTest {
 		paymentCoinController.updateWeightDiscrepancy(12, 1);
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		System.out.println("BRUH"+paymentCoinController.getAmount() );
 		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
 		//since there is a weight discrepancy. you should not be able to pay
 	}
@@ -466,7 +465,6 @@ public class PayCoinTest {
 		paymentCoinController.updateWeightDiscrepancy(12, 1);
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
 		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-		System.out.println("BRUH"+paymentCoinController.getAmount() );
 		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
 		//since there is a weight discrepancy. you should not be able to pay
 	}
