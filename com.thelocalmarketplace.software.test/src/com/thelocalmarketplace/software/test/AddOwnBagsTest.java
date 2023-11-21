@@ -23,7 +23,6 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItem.AddOwnBags;
 import com.thelocalmarketplace.software.AddItem.StartSession;
-// import com.thelocalmarketplace.software.test.AddItemWithDiscrepancyControllerTest.ConcreteItem;
 
 import powerutility.PowerGrid;
 
@@ -42,6 +41,18 @@ import org.junit.runners.JUnit4;
 // The only two variables that we have for testing are the TotalWeight and the TotalPrice
 // Every test checks the expected behaviour of these two
 // We test each branch of the function for true, false, and null values
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class AddOwnBagsTest {
 	SelfCheckoutStationGold stationGold;
 	SelfCheckoutStationSilver stationSilver;
