@@ -1,0 +1,250 @@
+package com.thelocalmarketplace.software.test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.tdc.CashOverloadException;
+import com.tdc.Sink;
+import com.tdc.coin.Coin;
+import com.tdc.coin.CoinDispenserBronze;
+import com.tdc.coin.CoinDispenserGold;
+import com.tdc.coin.CoinSlot;
+import com.tdc.coin.CoinValidator;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
+import com.thelocalmarketplace.software.addItem.PaymentCoinController;
+
+import ca.ucalgary.seng300.simulation.SimulationException;
+import powerutility.PowerGrid;
+//Michael Svoboda (30039040)
+//Shenuk Perera (30086618)
+//Marvellous Chukwukelu (30197270)
+//Kyuyop Andrew Park(10046592)
+//Darpal Patel (30088795)
+public class PayCoinTest {
+	
+	public SelfCheckoutStationGold selfCheckoutStationGold;
+	public SelfCheckoutStationBronze selfCheckoutStationBronze;
+	public SelfCheckoutStationSilver selfCheckoutStationSilver;
+	public CoinDispenserBronze coinDispenserBronze;
+	public CoinDispenserGold coinDispenserGold;
+	public CoinSlot coinSlot;
+	public PaymentCoinController paymentCoinController;
+	public PowerGrid powerGrid;
+	private Coin coin;
+	private Coin coinDime;
+	public BigDecimal amountDue;
+	public CoinValidator coinValidator;
+	public Currency cad; 
+	public List<BigDecimal> coinDenomination;
+	private BigDecimal dime;
+	private Coin coinb;
+	private BigDecimal nickle;
+	private Coin coinNickle;
+	
+	
+	
+	
+	@Before
+	public void Setup() throws SimulationException, CashOverloadException {
+		powerGrid = PowerGrid.instance();
+		PowerGrid.engageUninterruptiblePowerSource();//makes it so powergrid always works
+		BigDecimal[] banknoteDenominationsConfiguration = {new BigDecimal("5"),
+	            new BigDecimal("10"), new BigDecimal("20"),
+	            new BigDecimal("50"),new BigDecimal("100")};
+	    BigDecimal[] coinDenominationsConfigurationArray = {new BigDecimal("2"),
+	            new BigDecimal("1"), new BigDecimal("0.25"),
+	            new BigDecimal("0.1"),new BigDecimal("0.05")}; 
+	    cad = Currency.getInstance("CAD");
+	    
+		SelfCheckoutStationGold.resetConfigurationToDefaults();
+        SelfCheckoutStationGold.configureCurrency(Currency.getInstance("CAD"));
+        SelfCheckoutStationGold.configureBanknoteStorageUnitCapacity(7);
+        SelfCheckoutStationGold.configureCoinDenominations(coinDenominationsConfigurationArray);
+        SelfCheckoutStationGold.configureCoinDispenserCapacity(10);
+        SelfCheckoutStationGold.configureCoinTrayCapacity(10);
+        SelfCheckoutStationGold.configureScaleMaximumWeight(5);
+        SelfCheckoutStationGold.configureReusableBagDispenserCapacity(6);
+        SelfCheckoutStationGold.configureScaleSensitivity(9);
+        SelfCheckoutStationGold.configureCoinStorageUnitCapacity(10);
+		selfCheckoutStationGold = new SelfCheckoutStationGold();
+		selfCheckoutStationGold.plugIn(powerGrid);
+		selfCheckoutStationGold.turnOn();
+		
+		
+		SelfCheckoutStationSilver.configureCurrency(Currency.getInstance("CAD"));
+	    SelfCheckoutStationSilver.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationSilver.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationSilver.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationSilver.configureCoinDispenserCapacity(10);
+	    SelfCheckoutStationSilver.configureCoinTrayCapacity(10);
+	    SelfCheckoutStationSilver.configureScaleMaximumWeight(5);
+	    SelfCheckoutStationSilver.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationSilver.configureScaleSensitivity(9);
+	    SelfCheckoutStationSilver.configureCoinStorageUnitCapacity(10);	
+		selfCheckoutStationSilver = new SelfCheckoutStationSilver();
+		selfCheckoutStationSilver.plugIn(powerGrid);
+		selfCheckoutStationSilver.turnOn();
+		
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+	    SelfCheckoutStationBronze.configureBanknoteDenominations(banknoteDenominationsConfiguration);
+	    SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(7);
+	    SelfCheckoutStationBronze.configureCoinDenominations(coinDenominationsConfigurationArray);
+	    SelfCheckoutStationBronze.configureCoinDispenserCapacity(10);
+	    SelfCheckoutStationBronze.configureCoinTrayCapacity(10);
+	    SelfCheckoutStationBronze.configureScaleMaximumWeight(5);
+	    SelfCheckoutStationBronze.configureReusableBagDispenserCapacity(6);
+	    SelfCheckoutStationBronze.configureScaleSensitivity(9);
+	    SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
+		selfCheckoutStationBronze.plugIn(powerGrid);
+		selfCheckoutStationBronze.turnOn();
+		
+		//coin to be used for everyone 
+		dime = new BigDecimal("0.10");
+		nickle = new BigDecimal("0.05");
+		coinDime = new Coin(cad, dime);// 0.10 coin used for everything here
+		coinNickle = new Coin(cad, nickle);// 0.05 coin used for everything here
+		
+		coinDispenserGold = new CoinDispenserGold(10);
+		coinDispenserGold.connect(powerGrid);
+		coinDispenserGold.activate();
+		
+		//loading the dispenser with coins for it to dispense to customer the change
+		coinDispenserGold.load(coinDime);// adds 0.10
+		coinDispenserGold.load(coinDime);// adds 0.10
+		coinDispenserGold.load(coinDime);// adds 0.10
+		coinDispenserGold.load(coinDime);// adds 0.10
+		coinDispenserGold.load(coinDime);// adds 0.10
+		System.out.println("should be 5 or greater: "+coinDispenserGold.size());
+		//dispenser has 0.50 to dispence as change now for gold
+		
+		coinDispenserBronze = new CoinDispenserBronze(10);
+		coinDispenserBronze.connect(powerGrid);
+		coinDispenserBronze.activate();
+		coinDispenserBronze.load(coinDime);// adds 0.10
+		coinDispenserBronze.load(coinDime);// adds 0.10
+		coinDispenserBronze.load(coinDime);// adds 0.10
+		coinDispenserBronze.load(coinDime);// adds 0.10
+		coinDispenserBronze.load(coinDime);// adds 0.10
+		//dispenser has 0.50 to dispence as change now for bronze
+		
+		
+		coinDenomination = new ArrayList<>();
+		coinDenomination.add(new BigDecimal("0.25"));// could add more
+		coinValidator = new CoinValidator(cad, coinDenomination);	
+		//coinValidator.setup(coinDispenserGold, null, coinDispenserBronze);
+	}
+	 	
+//	@Test
+//	public void PaymentNotCompleteGold() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);// 0.25 coin used for everything here
+//		
+//		
+//		
+//		
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
+//		
+//		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+//		
+//		//customer starts putting in coins to pay
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.75. thus, 0.50 is amount due
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.50. thus, 0.25 is amount due
+//		
+//		//since we didnt do it again. this means the customer has not paid. there for the amount due is 0.25
+//		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
+//	}
+//	
+//	
+//	
+//	
+//	@Test
+//	public void PaymentCompleteGold() { 
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
+//		
+//		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+//
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		
+//		BigDecimal expectedPayment = new BigDecimal("0.00");
+//		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
+//	}
+	
+	
+	@Test
+	public void PaymentCDispenceChangeGold() {
+		amountDue = new BigDecimal("0.70");
+		
+		
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());//pays 0.10 because we added coinDime
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		// removed 0.30 from amount due. meaning their amount due is 0.40
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//bro did not have anymore dimes so they used 0.50. thus, the machine need to dispense change
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		//dispenseAmountNeeded should be 0.10 back in change
+		
+		//paymentCoinController.coinRemoved(coinDispenserGold, coinDime);//here we give back a dime in change.
+		//therefore, dispense amount needed now should be 0.00
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
+		paymentCoinController.dispenseCoin(coinDispenserBronze, coinDime);
+		assertEquals(0, paymentCoinController.getDispenserAmountNeeded().compareTo(expectedPayment));
+	}
+	
+	
+	
+	
+//	
+//	
+//	@Test
+//	public void weightDiscrepancyDetectedPay() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal initalAmountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold);
+//		paymentCoinController.updateWeightDiscrepancy(12, 1);
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
+//		//since there is a weight discrepancy. you should not be able to pay
+//	}
+//	
+//	@Test
+//	public void NoWeightDiscrepancyDetectedPay() {
+//		amountDue = new BigDecimal("0.75");
+//		BigDecimal quarter = new BigDecimal("0.25");
+//		coin = new Coin(cad, quarter);
+//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold);
+//		paymentCoinController.updateWeightDiscrepancy(12, 12);
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+//		BigDecimal expectedPayment = new BigDecimal("0.25");
+//		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
+//		//since there is a weight discrepancy. you should not be able to pay
+//	}
+}

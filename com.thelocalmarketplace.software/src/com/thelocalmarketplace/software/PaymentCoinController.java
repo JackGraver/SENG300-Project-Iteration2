@@ -1,64 +1,94 @@
-package com.thelocalmarketplace.software;
+package com.thelocalmarketplace.software.addItem;
+
 
 import java.math.BigDecimal;
 
+import com.tdc.AbstractComponent;
+import com.tdc.CashOverloadException;
+import com.tdc.DisabledException;
 import com.tdc.IComponent;
 import com.tdc.IComponentObserver;
+import com.tdc.NoCashAvailableException;
 import com.tdc.coin.Coin;
+import com.tdc.coin.CoinDispenserBronze;
+import com.tdc.coin.CoinDispenserGold;
 import com.tdc.coin.CoinDispenserObserver;
 import com.tdc.coin.CoinSlot;
 import com.tdc.coin.CoinSlotObserver;
+import com.tdc.coin.CoinStorageUnit;
 import com.tdc.coin.CoinValidator;
 import com.tdc.coin.CoinValidatorObserver;
 import com.tdc.coin.ICoinDispenser;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.hardware.CoinTray;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 import powerutility.PowerGrid;
+//Michael Svoboda (30039040)
+//Shenuk Perera (30086618)
+//Marvellous Chukwukelu (30197270)
+//Kyuyop Andrew Park(10046592)
+//Darpal Patel (30088795)
+
+
 /**
-	Jack Graver - 10187274
-	Christopher Thomson - 30186596
-	Shaim Momin - 30184418
-	Raja Muhammed Omar - 30159575
-	Michael Hoang - 30123605
-	Fei Ding - 30225995
-	Dylan Dizon - 30173525
-	Shenuk Perera - 30086618
-	Darpal Patel - 30088795
-	Md Abu Sinan - 30154627
- 
-    Controls the logic of coin insertion. Tracks amount due on bill as coins are inserted
-    during the current transaction.
+ * Controls the logic of coin insertion. Tracks amount due on bill as coins are inserted
+ * during the current transaction.
  */
 public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObserver, CoinDispenserObserver {
+	
+	public SelfCheckoutStationGold selfCheckoutStationGold;
+	public SelfCheckoutStationBronze selfCheckoutStationBronze;
+	public SelfCheckoutStationSilver selfCheckoutStationSilver;
+	public CoinDispenserBronze coinDispenserBronze;
+	public CoinDispenserGold coinDispenserGold;
+	public CoinSlot coinSlot;
+	
     private AbstractSelfCheckoutStation selfCheckoutStation;
     private PowerGrid powerGrid;
     private Coin coin;
     private BigDecimal amountDue;
-    private BigDecimal dispenserAmount = new BigDecimal("0.00");
+    
+    private BigDecimal dispenserAmountNeed;
+    
+    public boolean empty = false;
     private boolean weightDiscrepancyDetected = false; //keep track of weight discrepancy 
+	private boolean attendentComes = false;
+	
 
-    /**
-     * Basic constructor.
-     * 
-     * @param ss SelfCheckoutStation that is a part of this.
-     * @param pg PowerGrid that is a part of this.
-     * @param c Coin that is a part of this.
-     * @param amountDue The initial amount due.
-     */
-    public PaymentCoinController(SelfCheckoutStationGold ss, PowerGrid pg, Coin c, BigDecimal amountDue) {
-        selfCheckoutStation = ss;
-        powerGrid = pg;
-        coin = c;
-        this.amountDue = amountDue;
-        ss.plugIn(pg);
-        ss.turnOn();
-        ss.coinSlot.enable();
-        ss.coinSlot.attach(this);
-        ss.coinValidator.attach(this);
-    }
+
     
-    
+    public PaymentCoinController (SelfCheckoutStationGold scg, CoinDispenserGold cdg,CoinDispenserBronze cdb ) {
+		this.selfCheckoutStationGold = scg;
+		selfCheckoutStationGold.coinValidator.attach(this);
+		cdg.attach(this);
+		cdb.attach(this);
+	}
+	
+	public PaymentCoinController (SelfCheckoutStationSilver scs, CoinDispenserGold cdg,CoinDispenserBronze cdb ) {
+		this.selfCheckoutStationSilver = scs;
+		selfCheckoutStationSilver.coinValidator.attach(this);
+		cdg.attach(this);
+		cdb.attach(this);
+		
+	}
+	
+	public PaymentCoinController (SelfCheckoutStationBronze scb, CoinDispenserGold cdg,CoinDispenserBronze cdb ){
+		this.selfCheckoutStationBronze = scb;
+		selfCheckoutStationBronze.coinValidator.attach(this);
+		cdg.attach(this);
+		cdb.attach(this);
+	}
+	
+	/**
+	 * set the amount due
+	 * @param amount 
+	 */
+	public void setAmountDue(BigDecimal amount) {
+		amountDue = amount; 
+	}
 
     /**
      * Signals to the customer the updated amount due after coin insertion.
@@ -76,16 +106,18 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
         return amountDue;
     }
     
-    public BigDecimal getDispenserAmount() {
-        return dispenserAmount;
+    public BigDecimal getDispenserAmountNeeded() {
+        return dispenserAmountNeed;
     }
 
     /**
      * Receipt customer receives. Not fully implemented yet.
      */
-    private void printReceipt() {
+    public void printReceipt() {
         System.out.println("Transaction Complete");
     }
+    
+   
     
     
     /**
@@ -116,12 +148,13 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
     	//we assume its a valid coin everytime this function is called. thus, no need to valid coin check
     	if (weightDiscrepancyDetected == false) {
     		amountDue = amountDue.subtract(value);
+    		
             if (amountDue.compareTo(BigDecimal.ZERO) == 0) {
                 printReceipt();
             }
             else if(amountDue.compareTo(BigDecimal.ZERO) < 0) {
             	
-            	dispenserAmount = amountDue.abs();
+            	dispenserAmountNeed = amountDue.abs();
             	
             	
                 printReceipt();
@@ -131,8 +164,10 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
             else {
                 updateCustomer(amountDue);
             }
+    	} else {
+            System.out.println("SYSTEM BLOCKED");
+
     	}
-        System.out.println("SYSTEM BLOCKED");
 
         
     }
@@ -156,7 +191,7 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 
 	@Override
 	public void coinsEmpty(ICoinDispenser dispenser) {
-		// TODO Auto-generated method stub
+		empty = true;
 		
 	}
 
@@ -164,12 +199,56 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 
 	@Override
 	public void coinAdded(ICoinDispenser dispenser, Coin coin) {
-		// TODO Auto-generated method stub
+		System.out.println("UH OH");
 		
 	}
 
 
 
+	
+	/**
+     * where the coins that are considered change will be unloaded
+     * should be dispenserAmount
+     * the dispenser has only one denomination of a coin. which I can choose.
+     * 	thus the coin param is for the coin i am choosing to dispense
+     */
+	public void dispenseTrayCoin(CoinTray coinTray, Coin coin) {
+		
+				if(dispenserAmountNeed.compareTo(BigDecimal.ZERO) != 0) {
+					try {
+						coinTray.receive(coin);
+					} catch (CashOverloadException | DisabledException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
+				}
+					
+		
+				
+	}
+	
+	public void dispenseCoin(ICoinDispenser dispenser, Coin coin) {
+		try {
+					
+					dispenser.emit();
+					dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
+		
+					
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoCashAvailableException e) {
+					attendentComes  = true;
+					System.out.println("They require "+dispenserAmountNeed+" in change");
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	}
+	
+	
 	@Override
 	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
 		
@@ -185,12 +264,10 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 	}
 
 
-	/**
-     * where the coins that are considered change will be unloaded
-     */
+	
 	@Override
 	public void coinsUnloaded(ICoinDispenser dispenser, Coin... coins) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

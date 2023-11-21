@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="PayCoinTest" project="com.thelocalmarketplace.software.test" tests="3" started="3" failures="0" errors="0" ignored="0">
+  <testsuite name="com.thelocalmarketplace.software.test.PayCoinTest" time="0.04">
+    <testcase name="PaymentNotCompleteGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.039"/>
+    <testcase name="PaymentCDispenceChangeGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.001"/>
+    <testcase name="PaymentCompleteGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+  </testsuite>
+</testrun>

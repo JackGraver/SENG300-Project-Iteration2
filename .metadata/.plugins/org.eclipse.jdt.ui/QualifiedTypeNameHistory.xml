@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserObserver"/>
+    <fullyQualifiedTypeName name="java.lang.Math"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.software.addItem.PaymentCoinController"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.SelfCheckoutStationBronze"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.SelfCheckoutStationSilver"/>
+    <fullyQualifiedTypeName name="java.math.BigDecimal"/>
+    <fullyQualifiedTypeName name="com.tdc.coin.CoinSlot"/>
+    <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserGold"/>
+    <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserBronze"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+</qualifiedTypeNameHistroy>
