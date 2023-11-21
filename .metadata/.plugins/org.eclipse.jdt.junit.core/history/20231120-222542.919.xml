@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="PayCoinTest" project="com.thelocalmarketplace.software.test" tests="15" started="15" failures="0" errors="3" ignored="0">
+  <testsuite name="com.thelocalmarketplace.software.test.PayCoinTest" time="0.083">
+    <testcase name="NoWeightDiscrepancyDetectedPayBronze" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.049"/>
+    <testcase name="PaymentNotCompleteGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="NoWeightDiscrepancyDetectedPaySilver" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.001"/>
+    <testcase name="PaymentNotCompleteBronze" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="PaymentNotCompleteSilver" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.001"/>
+    <testcase name="PaymentCDispenceChangeGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.012">
+      <error>java.lang.NullPointerException: Cannot invoke "com.tdc.Sink.receive(Object)" because "this.sink" is null&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:185)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.thelocalmarketplace.software.test.PayCoinTest.PaymentCDispenceChangeGold(PayCoinTest.java:216)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)&#13;
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)&#13;
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)&#13;
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)&#13;
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)&#13;
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)&#13;
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)&#13;
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)&#13;
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)&#13;
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)&#13;
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)&#13;
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)&#13;
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)&#13;
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:93)&#13;
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:40)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:529)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:756)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:452)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)&#13;
+&#13;
+</error>
+    </testcase>
+    <testcase name="weightDiscrepancyDetectedPayGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.001"/>
+    <testcase name="PaymentCompleteBronze" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="NoWeightDiscrepancyDetectedPayGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.001"/>
+    <testcase name="PaymentCompleteSilver" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="PaymentCDispenceChangeBronze" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.018">
+      <error>java.lang.NullPointerException: Cannot invoke "com.tdc.Sink.receive(Object)" because "this.sink" is null&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:185)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.dispenseCoin(PaymentCoinController.java:234)&#13;
+	at com.thelocalmarketplace.software.test.PayCoinTest.PaymentCDispenceChangeBronze(PayCoinTest.java:446)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)&#13;
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)&#13;
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)&#13;
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)&#13;
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)&#13;
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)&#13;
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)&#13;
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)&#13;
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)&#13;
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)&#13;
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)&#13;
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)&#13;
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)&#13;
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:93)&#13;
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:40)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:529)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:756)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:452)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)&#13;
+&#13;
+</error>
+    </testcase>
+    <testcase name="weightDiscrepancyDetectedPayBronze" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="PaymentCDispenceChangeSilver" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0">
+      <error>java.lang.NullPointerException: Cannot invoke "com.tdc.Sink.receive(Object)" because "this.sink" is null&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:185)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.coinRemoved(PaymentCoinController.java:256)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.notifyCoinRemoved(AbstractCoinDispenser.java:218)&#13;
+	at com.tdc.coin.AbstractCoinDispenser.emit(AbstractCoinDispenser.java:184)&#13;
+	at com.thelocalmarketplace.software.addItem.PaymentCoinController.dispenseCoin(PaymentCoinController.java:234)&#13;
+	at com.thelocalmarketplace.software.test.PayCoinTest.PaymentCDispenceChangeSilver(PayCoinTest.java:337)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)&#13;
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)&#13;
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)&#13;
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)&#13;
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)&#13;
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)&#13;
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)&#13;
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)&#13;
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)&#13;
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)&#13;
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)&#13;
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)&#13;
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)&#13;
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)&#13;
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)&#13;
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:93)&#13;
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:40)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:529)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:756)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:452)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)&#13;
+&#13;
+</error>
+    </testcase>
+    <testcase name="weightDiscrepancyDetectedPaySilver" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+    <testcase name="PaymentCompleteGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.0"/>
+  </testsuite>
+</testrun>
