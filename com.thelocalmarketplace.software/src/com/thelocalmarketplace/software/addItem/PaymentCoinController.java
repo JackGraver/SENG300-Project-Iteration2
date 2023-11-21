@@ -20,6 +20,7 @@ import com.tdc.coin.CoinValidator;
 import com.tdc.coin.CoinValidatorObserver;
 import com.tdc.coin.ICoinDispenser;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
+import com.thelocalmarketplace.hardware.CoinTray;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
@@ -71,7 +72,6 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 		selfCheckoutStationSilver.coinValidator.attach(this);
 		cdg.attach(this);
 		cdb.attach(this);
-		coinSlot.attach(this);
 		
 	}
 	
@@ -80,7 +80,6 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 		selfCheckoutStationBronze.coinValidator.attach(this);
 		cdg.attach(this);
 		cdb.attach(this);
-		coinSlot.attach(this);
 	}
 	
 	/**
@@ -213,6 +212,24 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
      * the dispenser has only one denomination of a coin. which I can choose.
      * 	thus the coin param is for the coin i am choosing to dispense
      */
+	public void dispenseTrayCoin(CoinTray coinTray, Coin coin) {
+		try {
+				if(dispenserAmountNeed.compareTo(BigDecimal.ZERO) != 0) {
+					coinTray.receive(coin);
+					dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
+				}
+					
+		
+					
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	}
+	
 	public void dispenseCoin(ICoinDispenser dispenser, Coin coin) {
 		try {
 					
@@ -234,9 +251,9 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 	}
 	
 	
-	
+	@Override
 	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
-			
+		
 		
 	}
 

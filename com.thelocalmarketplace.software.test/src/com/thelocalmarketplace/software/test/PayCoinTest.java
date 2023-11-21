@@ -6,7 +6,9 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +55,7 @@ public class PayCoinTest {
 	private BigDecimal nickle;
 	private Coin coinNickle;
 	private CoinTray coinTray;
-	
+	public  Sink<Coin> standardSinks;
 	
 	
 	@Before
@@ -127,6 +129,7 @@ public class PayCoinTest {
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
 		coinDispenserGold.load(coinDime);// adds 0.10
+	
 		System.out.println("should be 5 or greater: "+coinDispenserGold.size());
 		//dispenser has 0.50 to dispence as change now for gold
 		
@@ -147,48 +150,45 @@ public class PayCoinTest {
 		//coinValidator.setup(coinDispenserGold, null, coinDispenserBronze);
 	}
 	 	
-//	@Test
-//	public void PaymentNotCompleteGold() {
-//		amountDue = new BigDecimal("0.75");
-//		BigDecimal quarter = new BigDecimal("0.25");
-//		coin = new Coin(cad, quarter);// 0.25 coin used for everything here
-//		
-//		
-//		
-//		
-//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
-//		
-//		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
-//		
-//		//customer starts putting in coins to pay
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.75. thus, 0.50 is amount due
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.50. thus, 0.25 is amount due
-//		
-//		//since we didnt do it again. this means the customer has not paid. there for the amount due is 0.25
-//		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
-//	}
-//	
-//	
-//	
-//	
-//	@Test
-//	public void PaymentCompleteGold() { 
-//		amountDue = new BigDecimal("0.75");
-//		BigDecimal quarter = new BigDecimal("0.25");
-//		coin = new Coin(cad, quarter);
-//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
-//		
-//		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
-//
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		
-//		BigDecimal expectedPayment = new BigDecimal("0.00");
-//		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
-//	}
+	@Test
+	public void PaymentNotCompleteGold() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);// 0.25 coin used for everything here
+		
+		
+		
+		
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		
+		//customer starts putting in coins to pay
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.75. thus, 0.50 is amount due
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.50. thus, 0.25 is amount due
+		
+		//since we didnt do it again. this means the customer has not paid. there for the amount due is 0.25
+		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
+	}
+
+	@Test
+	public void PaymentCompleteGold() { 
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
+	}
 	
-	
+	//NOT WORKING
 	@Test
 	public void PaymentCDispenceChangeGold() {
 		amountDue = new BigDecimal("0.70");
@@ -221,33 +221,234 @@ public class PayCoinTest {
 	
 	
 	
-//	
-//	
-//	@Test
-//	public void weightDiscrepancyDetectedPay() {
-//		amountDue = new BigDecimal("0.75");
-//		BigDecimal initalAmountDue = new BigDecimal("0.75");
-//		BigDecimal quarter = new BigDecimal("0.25");
-//		coin = new Coin(cad, quarter);
-//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold);
-//		paymentCoinController.updateWeightDiscrepancy(12, 1);
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
-//		//since there is a weight discrepancy. you should not be able to pay
-//	}
-//	
-//	@Test
-//	public void NoWeightDiscrepancyDetectedPay() {
-//		amountDue = new BigDecimal("0.75");
-//		BigDecimal quarter = new BigDecimal("0.25");
-//		coin = new Coin(cad, quarter);
-//		paymentCoinController = new PaymentCoinController(selfCheckoutStationGold);
-//		paymentCoinController.updateWeightDiscrepancy(12, 12);
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
-//		BigDecimal expectedPayment = new BigDecimal("0.25");
-//		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
-//		//since there is a weight discrepancy. you should not be able to pay
-//	}
+	
+
+	
+	
+	
+	//=====SILVER====
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@Test
+	public void PaymentNotCompleteSilver() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);// 0.25 coin used for everything here
+		
+		
+		
+		
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationSilver, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		
+		//customer starts putting in coins to pay
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.75. thus, 0.50 is amount due
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.50. thus, 0.25 is amount due
+		
+		//since we didnt do it again. this means the customer has not paid. there for the amount due is 0.25
+		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
+	}
+
+	@Test
+	public void PaymentCompleteSilver() { 
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationSilver, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
+	}
+	
+	
+	
+	
+	
+	//NOT WORKING
+	@Test
+	public void PaymentCDispenceChangeSilver() {
+		amountDue = new BigDecimal("0.70");
+		
+		
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationSilver, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());//pays 0.10 because we added coinDime
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		// removed 0.30 from amount due. meaning their amount due is 0.40
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//bro did not have anymore dimes so they used 0.50. thus, the machine need to dispense change
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		//dispenseAmountNeeded should be 0.10 back in change
+		
+		//paymentCoinController.coinRemoved(coinDispenserGold, coinDime);//here we give back a dime in change.
+		//therefore, dispense amount needed now should be 0.00
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
+		paymentCoinController.dispenseCoin(coinDispenserBronze, coinDime);
+		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
+
+		assertEquals(0, paymentCoinController.getDispenserAmountNeeded().compareTo(expectedPayment));
+	}
+	@Test
+	public void weightDiscrepancyDetectedPaySilver() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal initalAmountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationSilver, coinDispenserGold, coinDispenserBronze);
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		paymentCoinController.updateWeightDiscrepancy(12, 1);
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		System.out.println("BRUH"+paymentCoinController.getAmount() );
+		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
+		//since there is a weight discrepancy. you should not be able to pay
+	}
+	
+	
+	@Test
+	public void NoWeightDiscrepancyDetectedPaySilver() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationSilver, coinDispenserGold, coinDispenserBronze);
+		paymentCoinController.updateWeightDiscrepancy(12, 12);
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		BigDecimal expectedPayment = new BigDecimal("0.25");
+		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
+		//since there is a weight discrepancy. you should not be able to pay
+	}
+	
+	
+	
+	
+	//=====BRONZE====
+	
+	
+	
+	
+	@Test
+	public void PaymentNotCompleteBronze() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);// 0.25 coin used for everything here
+		
+		
+		
+		
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationBronze, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		
+		//customer starts putting in coins to pay
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.75. thus, 0.50 is amount due
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//0.25 is not removed from 0.50. thus, 0.25 is amount due
+		
+		//since we didnt do it again. this means the customer has not paid. there for the amount due is 0.25
+		assertTrue(new BigDecimal("0.25").compareTo(paymentCoinController.getAmount()) == 0);//the result should be 0.25. thus when comparing 0.25 to 0.25, it should be 0
+	}
+
+	@Test
+	public void PaymentCompleteBronze() { 
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationBronze, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		assertEquals(0, paymentCoinController.getAmount().compareTo(expectedPayment));
+	}
+	
+	
+	
+	
+	
+	//NOT WORKING
+	@Test
+	public void PaymentCDispenceChangeBronze() {
+		amountDue = new BigDecimal("0.70");
+		
+		
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationBronze, coinDispenserGold, coinDispenserBronze);
+		
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());//pays 0.10 because we added coinDime
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coinDime.getValue());
+		// removed 0.30 from amount due. meaning their amount due is 0.40
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());//bro did not have anymore dimes so they used 0.50. thus, the machine need to dispense change
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		//dispenseAmountNeeded should be 0.10 back in change
+		
+		//paymentCoinController.coinRemoved(coinDispenserGold, coinDime);//here we give back a dime in change.
+		//therefore, dispense amount needed now should be 0.00
+		BigDecimal expectedPayment = new BigDecimal("0.00");
+		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
+		paymentCoinController.dispenseCoin(coinDispenserBronze, coinDime);
+		System.out.println("WHY? "+ paymentCoinController.getDispenserAmountNeeded());
+
+		assertEquals(0, paymentCoinController.getDispenserAmountNeeded().compareTo(expectedPayment));
+	}
+	
+	
+	@Test
+	public void weightDiscrepancyDetectedPayBronze() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal initalAmountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationBronze, coinDispenserGold, coinDispenserBronze);
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		paymentCoinController.updateWeightDiscrepancy(12, 1);
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		System.out.println("BRUH"+paymentCoinController.getAmount() );
+		assertTrue(initalAmountDue.compareTo(paymentCoinController.getAmount()) == 0); //when comparing intial amount due to the amount after inserting coins,the difference should be 0. because cop
+		//since there is a weight discrepancy. you should not be able to pay
+	}
+	
+	
+	@Test
+	public void NoWeightDiscrepancyDetectedPayBronze() {
+		amountDue = new BigDecimal("0.75");
+		BigDecimal quarter = new BigDecimal("0.25");
+		coin = new Coin(cad, quarter);
+		paymentCoinController = new PaymentCoinController(selfCheckoutStationBronze, coinDispenserGold, coinDispenserBronze);
+		paymentCoinController.updateWeightDiscrepancy(12, 12);
+		paymentCoinController.setAmountDue(amountDue);//tell the paymentCoinController that 0.75 amount is needed to pay
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		paymentCoinController.validCoinDetected(coinValidator, coin.getValue());
+		BigDecimal expectedPayment = new BigDecimal("0.25");
+		assertTrue(expectedPayment.compareTo(paymentCoinController.getAmount()) == 0); //when comparing expectedamountdue to the amount after inserting coins,the difference should be 0. because cop
+		//since there is a weight discrepancy. you should not be able to pay
+	}
 }
