@@ -6,14 +6,23 @@ import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.printer.ReceiptPrinterListener;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
-
 /**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+
  * The `ReceiptPrinterController` class is responsible for controlling the printing process
  * in a self-checkout station. It interacts with the printer device and handles events related
  * to paper, ink, and device status. This class uses an attendant simulation to manage situations
  * where the printer is out of paper or ink.
  *
- * @author Raja Muhammed Omar
  */
 public class ReceiptPrinterController implements ReceiptPrinterListener {
 

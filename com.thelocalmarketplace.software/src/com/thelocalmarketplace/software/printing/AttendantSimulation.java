@@ -3,12 +3,22 @@ package com.thelocalmarketplace.software.printing;
 import com.jjjwelectronics.OverloadedDevice;
 
 /**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+	
  * The `AttendantSimulation` class simulates the actions of an attendant in
  * response to various situations, such as adding ink or paper to the printer
  * and printing duplicate receipts. It interacts with the associated
  * `ReceiptPrinterController` to perform these actions.
  *
- * @author Raja Muhammed Omar
  */
 public class AttendantSimulation {
 
