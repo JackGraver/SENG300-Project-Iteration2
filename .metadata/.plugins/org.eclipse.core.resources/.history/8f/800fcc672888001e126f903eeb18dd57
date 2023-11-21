@@ -213,19 +213,21 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
      * 	thus the coin param is for the coin i am choosing to dispense
      */
 	public void dispenseTrayCoin(CoinTray coinTray, Coin coin) {
-		
+		try {
 				if(dispenserAmountNeed.compareTo(BigDecimal.ZERO) != 0) {
-					try {
-						coinTray.receive(coin);
-					} catch (CashOverloadException | DisabledException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					coinTray.receive(coin);
 					dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
 				}
 					
 		
-				
+					
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	}
 	
 	public void dispenseCoin(ICoinDispenser dispenser, Coin coin) {
