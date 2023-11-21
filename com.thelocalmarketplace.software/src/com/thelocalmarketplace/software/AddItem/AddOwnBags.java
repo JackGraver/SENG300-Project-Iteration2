@@ -5,7 +5,7 @@
  * 
  */
 
-package com.thelocalmarketplace.software;
+package com.thelocalmarketplace.software.AddItem;
 
 import java.util.Scanner;
 
@@ -28,7 +28,7 @@ public class AddOwnBags extends AddItemWithDiscrepancyController {
 	
 
 	public AddOwnBags(SelfCheckoutStationGold ssg, StartSession startSess) {
-		super(ssg, startSess);
+		super(ssg);
 		this.stationGold = ssg;   
         //this.stationGold.baggingArea.register(this);
 	
@@ -36,7 +36,7 @@ public class AddOwnBags extends AddItemWithDiscrepancyController {
 	
 	public void chooseAddOwnBag(boolean addBags){
 		//Precondition of system is ready to detect weight discrepancy
-		if (startSession.isInSession() && !isBlocked()) {
+		if (StartSession.isInSession() && !isBlocked()) {
 			if (addBags) {
 				System.out.println("Place your bags in bagging area");
 				//manageAddBags(); 
