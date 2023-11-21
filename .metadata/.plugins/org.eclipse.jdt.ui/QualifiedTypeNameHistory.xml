@@ -2,13 +2,21 @@
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserObserver"/>
     <fullyQualifiedTypeName name="java.lang.Math"/>
-    <fullyQualifiedTypeName name="com.thelocalmarketplace.software.addItem.PaymentCoinController"/>
     <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation"/>
     <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.SelfCheckoutStationBronze"/>
     <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.SelfCheckoutStationSilver"/>
     <fullyQualifiedTypeName name="java.math.BigDecimal"/>
     <fullyQualifiedTypeName name="com.tdc.coin.CoinSlot"/>
-    <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserGold"/>
     <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserBronze"/>
+    <fullyQualifiedTypeName name="com.tdc.coin.CoinDispenserGold"/>
+    <fullyQualifiedTypeName name="java.util.HashMap"/>
+    <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.CoinTray"/>
     <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="com.tdc.coin.AbstractCoinDispenser"/>
+    <fullyQualifiedTypeName name="com.tdc.Sink"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.hardware.OneWayChannel"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.software.addItem.PaymentCoinController"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.software.AddItem.PaymentCoinController"/>
+    <fullyQualifiedTypeName name="com.thelocalmarketplace.software.PaymentCoinController"/>
 </qualifiedTypeNameHistroy>
