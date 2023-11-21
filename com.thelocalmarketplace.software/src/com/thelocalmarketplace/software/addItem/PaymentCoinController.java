@@ -9,6 +9,8 @@ import com.tdc.DisabledException;
 import com.tdc.IComponent;
 import com.tdc.IComponentObserver;
 import com.tdc.NoCashAvailableException;
+import com.tdc.Sink;
+import com.tdc.coin.AbstractCoinDispenser;
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
@@ -63,6 +65,7 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
     public PaymentCoinController (SelfCheckoutStationGold scg, CoinDispenserGold cdg,CoinDispenserBronze cdb ) {
 		this.selfCheckoutStationGold = scg;
 		selfCheckoutStationGold.coinValidator.attach(this);
+		this.coinDispenserGold = cdg;
 		cdg.attach(this);
 		cdb.attach(this);
 	}
@@ -230,10 +233,10 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 	
 	public void dispenseCoin(ICoinDispenser dispenser, Coin coin) {
 		try {
-					
-					dispenser.emit();
-					dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
-		
+
+				dispenser.emit();
+				dispenserAmountNeed = dispenserAmountNeed.subtract(coin.getValue());
+
 					
 				} catch (CashOverloadException e) {
 					// TODO Auto-generated catch block
@@ -251,7 +254,6 @@ public class PaymentCoinController implements CoinSlotObserver, CoinValidatorObs
 	
 	@Override
 	public void coinRemoved(ICoinDispenser dispenser, Coin coin) {
-		
 		
 	}
 
