@@ -4,6 +4,7 @@ import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.AbstractElectronicScale;
 import com.jjjwelectronics.scale.IElectronicScale;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 /**
 	Jack Graver - 10187274
@@ -20,12 +21,12 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 public class AddOwnBags extends AddItemWithDiscrepancyController {
 	public boolean addBags = false;
 	public boolean nextItemIsBags = false;
-	SelfCheckoutStationGold stationGold;
+	AbstractSelfCheckoutStation checkoutStation;
 	
 
-	public AddOwnBags(SelfCheckoutStationGold ssg, StartSession startSess) {
-		super(ssg);
-		this.stationGold = ssg;   
+	public AddOwnBags(AbstractSelfCheckoutStation checkoutStation, StartSession startSess) {
+		super(checkoutStation);
+		this.checkoutStation = checkoutStation;   
         //this.stationGold.baggingArea.register(this);
 	
 	}
