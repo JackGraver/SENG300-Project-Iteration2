@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="PayCoinTest" project="com.thelocalmarketplace.software.test" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="com.thelocalmarketplace.software.test.PayCoinTest" time="0.04">
-    <testcase name="PaymentCDispenceChangeGold" classname="com.thelocalmarketplace.software.test.PayCoinTest" time="0.04"/>
-  </testsuite>
-</testrun>
