@@ -1,4 +1,11 @@
-package com.thelocalmarketplace.software.AddItem;
+/* 
+ * Christopher Thomson - 30186596
+ * Darpal Patel - 30088795
+ * 
+ * 
+ */
+
+package com.thelocalmarketplace.software;
 
 import java.util.Scanner;
 
@@ -12,99 +19,69 @@ import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.ElectronicScaleSilver;
 import com.jjjwelectronics.scale.IElectronicScale;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 
-/**
-	Jack Graver - 10187274
-	Christopher Thomson - 30186596
-	Shaim Momin - 30184418
-	Raja Muhammed Omar - 30159575
-	Michael Hoang - 30123605
-	Fei Ding - 30225995
-	Dylan Dizon - 30173525
-	Shenuk Perera - 30086618
-	Darpal Patel - 30088795
-	Md Abu Sinan - 30154627
- */
-public class AddOwnBags extends AbstractElectronicScale implements ElectronicScaleListener {
-	boolean addBags = false;
+public class AddOwnBags extends AddItemWithDiscrepancyController {
+	public boolean addBags = false;
+	public boolean nextItemIsBags = false;
+	SelfCheckoutStationGold stationGold;
+	
 
-	public AddOwnBags() {
-		super(massLimit, sensitivityLimit);
+	public AddOwnBags(SelfCheckoutStationGold ssg, StartSession startSess) {
+		super(ssg, startSess);
+		this.stationGold = ssg;   
+        //this.stationGold.baggingArea.register(this);
+	
 	}
 	
-	public boolean addBagsChoice(boolean addBags) {
-		try (Scanner scanner = new Scanner(System.in)) {
-			System.out.println("Would you like to add your own bags");
-			System.out.println("1 - Yes");
-			System.out.println("2 - No");
-			String userInput = scanner.nextLine();
-			if (userInput == "1") {
-				addBags = true; 
-				return addBags;
+	public void chooseAddOwnBag(boolean addBags){
+		//Precondition of system is ready to detect weight discrepancy
+		if (startSession.isInSession() && !isBlocked()) {
+			if (addBags) {
+				System.out.println("Place your bags in bagging area");
+				//manageAddBags(); 
+				nextItemIsBags = true;
+  
+			}else {
+				System.out.println("You selected not to add bags");
 			}
+				
 		}
-		return addBags;
+		
 	}
-
-	@Override
-	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {}
-
-	@Override
-	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {}
-
-	@Override
-	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {}
-
-	@Override
-	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {}
+	
+	public void manageAddBags() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
-		if (addBags) {
-			try {
-				getCurrentMassOnTheScale();
-			} catch (OverloadedDevice e) {
-				// TODO Auto-generated catch block
-				notifyOverload();
+		if (nextItemIsBags) {
+			if (scale instanceof AbstractElectronicScale) {
+			    try {
+			        currentMass = ((AbstractElectronicScale) scale).getCurrentMassOnTheScale();
+			        //System.out.println(currentMass.toString());
+			    } catch (OverloadedDevice e) {
+			    }	   
 			}
-		} else {
-			WeightDescrepency();
+			if (scale instanceof AbstractElectronicScale) {
+			    try {
+			       setTotalWeight(((AbstractElectronicScale) scale).getCurrentMassOnTheScale().inGrams().doubleValue());
+			       //System.out.println(currentMass.toString());
+			       //System.out.println(getTotalWeight());
+			    } catch (OverloadedDevice e) {
+			   }
+				
+				nextItemIsBags = false;
+        }
 		}
+		else {
+			super.theMassOnTheScaleHasChanged(scale, mass);
+        }
 		
 	}
 
-	@Override
-	public void theMassOnTheScaleHasExceededItsLimit(IElectronicScale scale) {
-		System.out.println("Scale overload! Please remove excess weight.");
-		AddItemWithDiscrepancyController.block();
 		
-	}
 
-	@Override
-	public void theMassOnTheScaleNoLongerExceedsItsLimit(IElectronicScale scale) {
-		System.out.println("You can continue scanning items.");
-		AddItemWithDiscrepancyController.unblock();
-		
-	}
-	
-	public boolean WeightDescrepency() {
-		System.out.println("Discrepency found!");
-		System.out.println("** Attendant has been notified **");
-		AddItemWithDiscrepancyController.block();
-		
-		return true;
-		
-	}
-	
-	public void AttendentOverrideToHandleDiscrepancy(boolean override){
-		if (AddItemWithDiscrepancyController.isBlocked()) {				
-			if (override) {
-				AddItemWithDiscrepancyController.unblock();	
-			}
-			else {
-				WeightDescrepency();
-			}
-		
-		}
-	}
 }
