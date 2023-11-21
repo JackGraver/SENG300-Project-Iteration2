@@ -16,9 +16,6 @@ import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-// import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
-// import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-// import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 import powerutility.PowerGrid;

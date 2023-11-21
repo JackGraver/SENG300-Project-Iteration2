@@ -1,26 +1,22 @@
-/* 
- * Christopher Thomson - 30186596
- * Darpal Patel - 30088795
- * 
- * 
- */
-
 package com.thelocalmarketplace.software.AddItem;
 
-import java.util.Scanner;
-
-import com.jjjwelectronics.IDevice;
-import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.OverloadedDevice;
 import com.jjjwelectronics.scale.AbstractElectronicScale;
-import com.jjjwelectronics.scale.ElectronicScaleBronze;
-import com.jjjwelectronics.scale.ElectronicScaleGold;
-import com.jjjwelectronics.scale.ElectronicScaleListener;
-import com.jjjwelectronics.scale.ElectronicScaleSilver;
 import com.jjjwelectronics.scale.IElectronicScale;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class AddOwnBags extends AddItemWithDiscrepancyController {
 	public boolean addBags = false;
 	public boolean nextItemIsBags = false;
