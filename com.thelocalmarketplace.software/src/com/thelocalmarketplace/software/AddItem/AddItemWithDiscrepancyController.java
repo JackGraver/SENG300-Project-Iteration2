@@ -16,9 +16,9 @@ import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
+// import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+// import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+// import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 
 import powerutility.PowerGrid;
@@ -36,16 +36,16 @@ import powerutility.PowerGrid;
 	Md Abu Sinan - 30154627
  */
 public class AddItemWithDiscrepancyController implements BarcodeScannerListener, ElectronicScaleListener {
-	public SelfCheckoutStationGold selfCheckoutStationGold;
-	public SelfCheckoutStationBronze selfCheckoutStationBronze;
-	public SelfCheckoutStationSilver selfCheckoutStationSilver;
+	// public SelfCheckoutStationGold selfCheckoutStationGold;
+	// public SelfCheckoutStationBronze selfCheckoutStationBronze;
+	// public SelfCheckoutStationSilver selfCheckoutStationSilver;
 	public AbstractSelfCheckoutStation selfCheckoutStation;
 	public PowerGrid powerGrid; 
 	private long totalCost;
 	private double totalWeight;
 	private Mass expectedWeight;
 	public ElectronicScaleGold electronicScale;
-	public StartSession startSession;
+	// public StartSession startSession;
 	public Mass currentMass;
 	public boolean foundDiscrepancy;
 	public boolean isEnabled;
@@ -53,42 +53,47 @@ public class AddItemWithDiscrepancyController implements BarcodeScannerListener,
 	public boolean isOverloaded;
 	public static boolean isBlocked = false;
 	
-	public AddItemWithDiscrepancyController (SelfCheckoutStationGold ssg, StartSession startSess) {
-		this.selfCheckoutStation= ssg;
-        this.selfCheckoutStation.mainScanner.register(this);
-        this.selfCheckoutStation.baggingArea.register(this);
+	public AddItemWithDiscrepancyController(AbstractSelfCheckoutStation checkoutStation) {
+		this.selfCheckoutStation = checkoutStation;
+	}
+
+
+	// public AddItemWithDiscrepancyController (SelfCheckoutStationGold ssg, StartSession startSess) {
+	// 	this.selfCheckoutStation= ssg;
+    //     this.selfCheckoutStation.mainScanner.register(this);
+    //     this.selfCheckoutStation.baggingArea.register(this);
         
         
 		
-		startSession = startSess;
-		isBlocked = false;
-		foundDiscrepancy = false;
+	// 	startSession = startSess;
+	// 	isBlocked = false;
+	// 	foundDiscrepancy = false;
 	
-	}
+	// }
 	
-	public AddItemWithDiscrepancyController (SelfCheckoutStationSilver sss, StartSession startSess ) {
-		this.selfCheckoutStation= sss;
-        this.selfCheckoutStation.mainScanner.register(this);
-        this.selfCheckoutStation.baggingArea.register(this);
+	// public AddItemWithDiscrepancyController (SelfCheckoutStationSilver sss, StartSession startSess ) {
+	// 	this.selfCheckoutStation= sss;
+    //     this.selfCheckoutStation.mainScanner.register(this);
+    //     this.selfCheckoutStation.baggingArea.register(this);
         
 		
-		startSession = startSess;
-		isBlocked = false;
-		foundDiscrepancy = false;
+	// 	startSession = startSess;
+	// 	isBlocked = false;
+	// 	foundDiscrepancy = false;
 	
-	}
+	// }
 	
-	public AddItemWithDiscrepancyController (SelfCheckoutStationBronze ssb, StartSession startSess ) {
-		this.selfCheckoutStation= ssb;
-        this.selfCheckoutStation.mainScanner.register(this);
-        this.selfCheckoutStation.baggingArea.register(this);
+	// public AddItemWithDiscrepancyController (SelfCheckoutStationBronze ssb, StartSession startSess ) {
+	// 	this.selfCheckoutStation= ssb;
+    //     this.selfCheckoutStation.mainScanner.register(this);
+    //     this.selfCheckoutStation.baggingArea.register(this);
         
 		
-		startSession = startSess;
-		isBlocked = false;
-		foundDiscrepancy = false;
+	// 	startSession = startSess;
+	// 	isBlocked = false;
+	// 	foundDiscrepancy = false;
 	
-	}
+	// }
 	
 	/**
 	 * Implements logic for scan of barcoded product 
@@ -102,7 +107,7 @@ public class AddItemWithDiscrepancyController implements BarcodeScannerListener,
 	public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 		
 		//Ignores logic if session has not been started or session is blocked 
-		if(this.startSession.isInSession() && !AddItemWithDiscrepancyController.isBlocked()) {	
+		if(StartSession.isInSession() && !AddItemWithDiscrepancyController.isBlocked()) {	
 			
 			AddItemWithDiscrepancyController.block();			// Block further customer interaction 
 			

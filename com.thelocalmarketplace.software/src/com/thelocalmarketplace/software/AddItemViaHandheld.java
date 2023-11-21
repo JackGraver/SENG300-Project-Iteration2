@@ -66,10 +66,8 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
                 long cost = product.getPrice();
                 
                 //update expected weight from bagging area
-                    checkoutStation.baggingArea.addAnItem(new BarcodedItem(barcode, new Mass(weight)));
-                    //use add item controller?
-                    //not sure how to update weight otherwise
-                    //handle weight discrepancy?
+                    AddItemWithDiscrepancyController addItemController = new AddItemWithDiscrepancyController(checkoutStation);
+                    addItemController.AddItemToHandleDiscrepancy(new BarcodedItem(barcode, new Mass(weight)));
 
                 //Signal to Customer to place the scanned item in the bagging area
 
