@@ -7,43 +7,29 @@
 
 package com.thelocalmarketplace.software.test;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.List;
 
-import com.jjjwelectronics.IDevice;
-import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.Item;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
-import com.jjjwelectronics.OverloadedDevice;
-import com.jjjwelectronics.scale.ElectronicScaleGold;
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerGold;
-import com.jjjwelectronics.scanner.BarcodeScannerListener;
 import com.jjjwelectronics.scanner.BarcodedItem;
-import com.jjjwelectronics.scanner.IBarcodeScanner;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
-import com.thelocalmarketplace.hardware.Product;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
-import com.thelocalmarketplace.software.AddItemWithDiscrepancyController;
-import com.thelocalmarketplace.software.AddOwnBags;
-import com.thelocalmarketplace.software.StartSession;
-import com.thelocalmarketplace.software.test.AddItemWithDiscrepancyControllerTest.ConcreteItem;
+import com.thelocalmarketplace.software.AddItem.AddOwnBags;
+import com.thelocalmarketplace.software.AddItem.StartSession;
+// import com.thelocalmarketplace.software.test.AddItemWithDiscrepancyControllerTest.ConcreteItem;
 
 import powerutility.PowerGrid;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
