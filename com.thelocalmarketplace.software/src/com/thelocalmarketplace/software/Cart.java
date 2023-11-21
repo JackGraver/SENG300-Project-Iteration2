@@ -23,13 +23,13 @@ public class Cart {
 	private Map <Product, Integer> products; // creating a hashmap for individual products and its quantity
 	public int currentQuantity =0;
 	public StartSession startSession; // for session logic
-	public SelfCheckoutStationGold selfCheckoutStation;// to check if selfcheckout sation is on or not
+	public AbstractSelfCheckoutStation selfCheckoutStation;// to check if selfcheckout sation is on or not
 	
 	public PowerGrid powerGrid;// to check if selfcheckoutStation is on or not 
 	public static boolean isBlocked = false; // session is started and is not blocked 
 	
 	
-	public Cart(SelfCheckoutStationGold ss, PowerGrid pg, StartSession startSess) {
+	public Cart(AbstractSelfCheckoutStation ss, PowerGrid pg, StartSession startSess) {
 		this.selfCheckoutStation = ss;
 		this.powerGrid = pg;
 		this.startSession = startSess;
