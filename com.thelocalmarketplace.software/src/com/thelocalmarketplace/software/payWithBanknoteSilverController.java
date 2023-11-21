@@ -9,21 +9,19 @@ import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
 import com.tdc.banknote.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 /**
-	Jack Graver - 10187274
-	Christopher Thomson - 30186596
-	Shaim Momin - 30184418
-	Raja Muhammed Omar - 30159575
-	Michael Hoang - 30123605
-	Fei Ding - 30225995
-	Dylan Dizon - 30173525
-	Shenuk Perera - 30086618
-	Darpal Patel - 30088795
-	Md Abu Sinan - 30154627
+ Jack Graver - 10187274
+ Christopher Thomson - 30186596
+ Shaim Momin - 30184418
+ Raja Muhammed Omar - 30159575
+ Michael Hoang - 30123605
+ Fei Ding - 30225995
+ Dylan Dizon - 30173525
+ Shenuk Perera - 30086618
+ Darpal Patel - 30088795
+ Md Abu Sinan - 30154627
  */
 public class payWithBanknoteSilverController implements BanknoteInsertionSlotObserver, BanknoteValidatorObserver, BanknoteStorageUnitObserver, BanknoteDispensationSlotObserver{
     private final SelfCheckoutStationSilver silverStation;
@@ -47,8 +45,10 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
     public Boolean turnedOn;
     private ReceiptPrinterController printer;
     private BigDecimal totalPrice;
+    private List<Banknote> change;
+    Cart cart;
 
-    public payWithBanknoteSilverController(SelfCheckoutStationSilver station){
+    public payWithBanknoteSilverController (SelfCheckoutStationSilver station) {
         silverStation = station;
         silverStation.banknoteValidator.attach(this);
         silverStation.banknoteStorage.attach(this);
@@ -157,56 +157,84 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
         System.out.println("This Banknote is verified to be false.");
     }
 
-    public void setTotalPrice(BigDecimal price){
+    // set the price of the bill, should be done after choosing paying by banknotes
+    private void setTotalPrice(BigDecimal price) {
         totalPrice = price;
         remainingAmount = totalPrice;
     }
 
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        setTotalPrice(new BigDecimal(cart.totalCost));
+    }
+
+    // inputting one or more banknotes, and then it will complete paying process automatically.
     public void payWithBanknote(Banknote... banknotes) throws DisabledException, CashOverloadException {
         int i =0;
         int n = banknotes.length;
-        payingCompleted = false;
+        payingCompleted = false; //the flag of paying process, only paying is completed, it will change to be true
         while(!payingCompleted) {
+
+            //firstly check whether storage unit is full
+            //If it is full, the checkout station cannot receive any banknote.
             if (banknotesFull) {
                 silverStation.banknoteInput.receive(banknotes[i]);
                 System.out.println("it is full, cannot insert any banknote.");
             }
+
+            //inserting the banknote
             silverStation.banknoteInput.receive(banknotes[i]);
+
+            //Only if the banknote is inserted successfully, it will be verified automatically
             if (banknoteInserted) {
-                //bronzeStation.banknoteValidator.receive(banknotes[i]);
+                //silverStation.banknoteValidator.receive(banknotes[i]);
+
+                //Only if the banknote is inserted and verified to be good, it will be added to storage unit.
                 if (banknoteValidity) {
-                    //bronzeStation.banknoteStorage.receive(banknotes[i]);
+                    //silverStation.banknoteStorage.receive(banknotes[i]);
+
+                    //Only if the banknote is inserted, verified to be good, and added to storage unit successfully,
+                    //the remaining amount will be change
                     if (banknoteAdded) {
                         remainingAmount = remainingAmount.subtract(banknotes[i].getDenomination());
                         if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+                            //When remaining amount is still greater than 0, more banknotes should be inserted.
                             System.out.println("the remaining amount is " + remainingAmount);
-                            System.out.println();
                         }
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+                            //When remaining amount is 0, the banknotes paid are enough, and do not need to change
                             System.out.println("the remaining amount is zero.");
-                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.println(printer.getPrintedReceipt());
+                            printBill();
                             payingCompleted = true;
                         }
                         else {
+                            ////When remaining amount less than 0, which means customers pay more money than they should,
+                            // then change should be made
                             System.out.println("the remaining amount is less than zero.");
                             if (!makeChange(remainingAmount.negate())){
                                 canChange = false;
                                 //signalAttendant();
                                 //suspendStation();
                             }
-                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.println(printer.getPrintedReceipt());
+                            else {
+                                change = silverStation.banknoteOutput.removeDanglingBanknotes();
+                                showChange();
+                            }
+                            printBill();
                             payingCompleted = true;
                         }
                     }
                     else {
+                        //When the banknote is not added to storage unit successfully,
+                        //it will be returned automatically by hardware
                         System.out.println("the banknote will be returned.");
-                        //bronzeStation.banknoteOutput.receive(banknotes[i]);
-                        //bronzeStation.banknoteOutput.dispense();
+                        //silverStation.banknoteOutput.receive(banknotes[i]);
+                        //silverStation.banknoteOutput.dispense();
                     }
                 }
                 else {
+                    //When the banknote is not verified to be bad
+                    //it will be returned automatically by hardware
                     System.out.println("the banknote will be returned.");
                     if (silverStation.banknoteInput.hasDanglingBanknotes()) {
                         payingCompleted = true;
@@ -214,13 +242,14 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                 }
             }
             else {
+                //When the banknote is not inserted to slot successfully,
+                //it will be returned automatically by hardware
                 System.out.println("the banknote will be returned.");
-                //bronzeStation.banknoteInput.emit(banknotes[i]);
-                //bronzeStation.banknoteInput.removeDanglingBanknote();
+                //silverStation.banknoteInput.emit(banknotes[i]);
+                //silverStation.banknoteInput.removeDanglingBanknote();
             }
-            i++;
+            i++; // continuing inserting more banknotes
             if (i == n && !payingCompleted) {
-                //printReceipt();
                 payingCompleted = true;
             }
         }
@@ -230,6 +259,7 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
         return silverStation;
     }
 
+    //To calculate whether the storage unit have the right combination of banknotes to change
     public List<Banknote> findChange(Banknote[] storedBanknotes, BigDecimal changeAmount) {
         // The value of banknoteSet[i][j] will be true if there is a banknoteSet of
         // set[0..j-1] with sum equal to i
@@ -263,7 +293,6 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
         }*/
 
         if (banknoteSet[n][changeAmount.intValue()]) {
-            System.out.println("Found a banknoteSet with the given sum");
             ArrayList<Banknote> sol = new ArrayList<>();
             // Using backtracking to find the solution
             int i = n;
@@ -283,7 +312,9 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
         }
     }
 
+    //Change for the payment
     Boolean makeChange(BigDecimal expectedChange) throws DisabledException, CashOverloadException {
+        //getting all banknotes in the storage unit
         List<Banknote> storedBanknotes = silverStation.banknoteStorage.unload();
         ArrayList<Banknote> allBanknotes = new ArrayList<>(storedBanknotes);
         Iterator<Banknote> iterator = allBanknotes.iterator();
@@ -293,11 +324,17 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                 iterator.remove();
             }
         }
-        if (findChange(allBanknotes.toArray(new Banknote[0]), remainingAmount.negate()) == null) {
+
+        //implement findChange method to tell whether it is able to make change
+        if (findChange(allBanknotes.toArray(new Banknote[0]), expectedChange) == null) {
+            //When it cannot find a right combination of banknotes, return false
             silverStation.banknoteStorage.load(allBanknotes.toArray(new Banknote[0]));
             return false;
         }
         else {
+            //When there is a right combination of banknotes
+
+            //get a right combination of banknotes and remove them from the stored banknotes
             ArrayList<Banknote> banknoteAsChange = new ArrayList<>(findChange(allBanknotes.toArray(new Banknote[0]), remainingAmount.negate()));
             Iterator<Banknote> iterator1 = allBanknotes.iterator();
             for (Banknote element2 : banknoteAsChange) {
@@ -310,6 +347,8 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
                 }
             }
             silverStation.banknoteStorage.load(allBanknotes.toArray(new Banknote[0]));
+
+            //dispensing the right combination of change
             dispensedBanknotes = banknoteAsChange;
             for (Banknote banknote: banknoteAsChange) {
                 silverStation.banknoteOutput.receive(banknote);
@@ -317,5 +356,34 @@ public class payWithBanknoteSilverController implements BanknoteInsertionSlotObs
             silverStation.banknoteOutput.dispense();
             return true;
         }
+    }
+
+    public Banknote[] getChange() {
+        return change.toArray(new Banknote[0]);
+    }
+
+    private void showChange() {
+        System.out.println("This is your change: ");
+        for (int i = 0; i < change.size(); i++) {
+            System.out.print(change.get(i).getDenomination() + " " +
+                    change.get(i).getCurrency());
+            if (i < change.size() - 1) {
+                System.out.print(", ");
+            }
+            else {
+                System.out.print(".");
+            }
+        }
+    }
+
+    private void printBill() {
+        String receiptString = "  Receipt\n";
+        receiptString += "Total Quantity: ";
+        receiptString += cart.currentQuantity;
+        receiptString += "\n";
+        receiptString += "Total Cost: ";
+        receiptString += cart.totalCost;
+        printer.printReceipt(receiptString);
+        System.out.println(printer.getPrintedReceipt());
     }
 }

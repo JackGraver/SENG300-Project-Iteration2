@@ -9,10 +9,8 @@ import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
 import com.tdc.banknote.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 /**
 	Jack Graver - 10187274
 	Christopher Thomson - 30186596
@@ -47,8 +45,10 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
     public Boolean turnedOn;
     private ReceiptPrinterController printer;
     private BigDecimal totalPrice;
+    private List<Banknote> change;
+    Cart cart;
 
-    public payWithBanknoteBronzeController(SelfCheckoutStationBronze station) {
+    public payWithBanknoteBronzeController (SelfCheckoutStationBronze station) {
         bronzeStation = station;
         bronzeStation.banknoteValidator.attach(this);
         bronzeStation.banknoteStorage.attach(this);
@@ -158,9 +158,14 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
     }
 
     // set the price of the bill, should be done after choosing paying by banknotes
-    public void setTotalPrice(BigDecimal price){
+    private void setTotalPrice(BigDecimal price) {
         totalPrice = price;
         remainingAmount = totalPrice;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        setTotalPrice(new BigDecimal(cart.totalCost));
     }
 
     // inputting one or more banknotes, and then it will complete paying process automatically.
@@ -199,8 +204,7 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                         else if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
                             //When remaining amount is 0, the banknotes paid are enough, and do not need to change
                             System.out.println("the remaining amount is zero.");
-                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.println(printer.getPrintedReceipt());
+                            printBill();
                             payingCompleted = true;
                         }
                         else {
@@ -212,8 +216,11 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
                                 //signalAttendant();
                                 //suspendStation();
                             }
-                            printer.printReceipt("Receipt\n" + "Total $" + totalPrice.intValue() + "\n" + "By Banknote");
-                            System.out.println(printer.getPrintedReceipt());
+                            else {
+                                change = bronzeStation.banknoteOutput.removeDanglingBanknotes();
+                                showChange();
+                            }
+                            printBill();
                             payingCompleted = true;
                         }
                     }
@@ -243,7 +250,6 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
             }
             i++; // continuing inserting more banknotes
             if (i == n && !payingCompleted) {
-                //printReceipt();
                 payingCompleted = true;
             }
         }
@@ -287,7 +293,6 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
         }*/
 
         if (banknoteSet[n][changeAmount.intValue()]) {
-            System.out.println("Found a banknoteSet with the given sum");
             ArrayList<Banknote> sol = new ArrayList<>();
             // Using backtracking to find the solution
             int i = n;
@@ -351,5 +356,34 @@ public class payWithBanknoteBronzeController implements BanknoteInsertionSlotObs
             bronzeStation.banknoteOutput.dispense();
             return true;
         }
+    }
+
+    public Banknote[] getChange() {
+        return change.toArray(new Banknote[0]);
+    }
+
+    private void showChange() {
+        System.out.println("This is your change: ");
+        for (int i = 0; i < change.size(); i++) {
+            System.out.print(change.get(i).getDenomination() + " " +
+                    change.get(i).getCurrency());
+            if (i < change.size() - 1) {
+                System.out.print(", ");
+            }
+            else {
+                System.out.print(".");
+            }
+        }
+    }
+
+    private void printBill() {
+        String receiptString = "  Receipt\n";
+        receiptString += "Total Quantity: ";
+        receiptString += cart.currentQuantity;
+        receiptString += "\n";
+        receiptString += "Total Cost: ";
+        receiptString += cart.totalCost;
+        printer.printReceipt(receiptString);
+        System.out.println(printer.getPrintedReceipt());
     }
 }
