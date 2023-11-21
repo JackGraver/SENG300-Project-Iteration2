@@ -93,7 +93,6 @@ public class payWithBanknoteBronzeControllerTest {
         barcodes[2]=barcode2;
         barcodes[0]=barcode3;
 
-        // 创建Cart对象并传递其他对象作为参数
         cart = new Cart(station, PowerGrid.instance(), startSession);
     }
 
