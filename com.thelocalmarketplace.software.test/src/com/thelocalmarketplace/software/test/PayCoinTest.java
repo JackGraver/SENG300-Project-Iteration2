@@ -42,7 +42,7 @@ public class PayCoinTest {
 	public CoinDispenserBronze coinDispenserBronze;
 	public CoinDispenserGold coinDispenserGold;
 	public CoinSlot coinSlot;
-	public PaymentCoinController paymentCoinController;
+	public com.thelocalmarketplace.software.PaymentCoinController paymentCoinController;
 	public PowerGrid powerGrid;
 	private Coin coin;
 	private Coin coinDime;
