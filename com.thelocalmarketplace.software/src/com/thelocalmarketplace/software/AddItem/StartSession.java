@@ -24,7 +24,7 @@ public class StartSession {
     public SelfCheckoutStationBronze selfCheckoutStationBronze;
 
     // Precondition: System is not in a session
-    private boolean inSession = false;
+    private static boolean inSession = false;
 
     public StartSession(SelfCheckoutStationGold station) {
         this.selfCheckoutStationGold = station;
@@ -59,7 +59,7 @@ public class StartSession {
         inSession = true;
     }
 
-    public boolean isInSession() {
+    public static boolean isInSession() {
         return inSession;
     }
 }

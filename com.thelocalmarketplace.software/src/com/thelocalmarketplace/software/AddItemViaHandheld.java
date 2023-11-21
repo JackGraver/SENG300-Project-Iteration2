@@ -11,6 +11,7 @@ import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItem.AddItemWithDiscrepancyController;
+import com.thelocalmarketplace.software.AddItem.StartSession;
 
 /**
 	Jack Graver - 10187274
@@ -50,32 +51,33 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
 
     @Override
     public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
-
-        //not allow scan if customer session in progress already
+        if(StartSession.isInSession()) {
+            //not allow scan if customer session in progress already
             //Need to check if StartSession inSession variable is true, either needs to be static or some type of implementation like singleton
 
-        //following steps from use case:
-        //Block?
-        AddItemWithDiscrepancyController.block();
+            //following steps from use case:
+            //Block?
+            AddItemWithDiscrepancyController.block();
 
-        BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
-        if(product != null) {
-            //determine characterisitcs (weight and cost) of product associated with barcode
-            double weight = product.getExpectedWeight();
-            long cost = product.getPrice();
-            
-            //update expected weight from bagging area
-                checkoutStation.baggingArea.addAnItem(new BarcodedItem(barcode, new Mass(weight)));
-                //use add item controller?
-                //not sure how to update weight otherwise
-                //handle weight discrepancy?
+            BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+            if(product != null) {
+                //determine characterisitcs (weight and cost) of product associated with barcode
+                double weight = product.getExpectedWeight();
+                long cost = product.getPrice();
+                
+                //update expected weight from bagging area
+                    checkoutStation.baggingArea.addAnItem(new BarcodedItem(barcode, new Mass(weight)));
+                    //use add item controller?
+                    //not sure how to update weight otherwise
+                    //handle weight discrepancy?
 
-            //Signal to Customer to place the scanned item in the bagging area
+                //Signal to Customer to place the scanned item in the bagging area
 
-            //Signals to System the weight has changed
+                //Signals to System the weight has changed
+            }
+
+            //Unblock? 
+            AddItemWithDiscrepancyController.unblock();
         }
-
-        //Unblock? 
-        AddItemWithDiscrepancyController.unblock();
     }
 }
