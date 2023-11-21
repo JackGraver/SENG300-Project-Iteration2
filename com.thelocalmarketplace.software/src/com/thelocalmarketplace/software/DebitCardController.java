@@ -1,19 +1,27 @@
+package com.thelocalmarketplace.software;
+
 import com.jjjwelectronics.*;
 import com.jjjwelectronics.card.*;
 import com.jjjwelectronics.card.Card.CardData;
-import com.jjjwelectronics.printer.*;
-import com.jjjwelectronics.scale.*;
-import com.tdc.*;
-import com.tdc.banknote.*;
-import com.tdc.coin.*;
-import com.thelocalmarketplace.*;
 import com.thelocalmarketplace.hardware.*;
 import com.thelocalmarketplace.hardware.external.*;
+import com.thelocalmarketplace.software.printing.ReceiptPrinterController;
 
 import powerutility.PowerGrid;
 
 
-
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class DebitCardController implements CardReaderListener {
 	
 	public SelfCheckoutStationGold selfCheckoutStationGold;
@@ -23,16 +31,26 @@ public class DebitCardController implements CardReaderListener {
 	public CardIssuer bank;
 	public double amountDue;
 	public CardData cardData; 
+	public ReceiptPrinterController printer;
+	public double totalPrice;
+	public boolean completePayment;
+	public boolean isEnabled;
+	public boolean isOn;
+	
 
 	public DebitCardController (SelfCheckoutStationGold ssg) {
 		this.selfCheckoutStationGold = ssg;
-        this.selfCheckoutStationGold.cardReader.register(this);;
+        this.selfCheckoutStationGold.cardReader.register(this);
+        printer = new ReceiptPrinterController(this.selfCheckoutStationGold);
+        completePayment = false;
 		
 	}
 	
 	public DebitCardController (SelfCheckoutStationSilver ssv) {
 		this.selfCheckoutStationSilver = ssv;
 		this.selfCheckoutStationSilver.cardReader.register(this);
+		printer = new ReceiptPrinterController(this.selfCheckoutStationSilver);
+		completePayment = false;
 		
 		
 	}
@@ -40,14 +58,15 @@ public class DebitCardController implements CardReaderListener {
 	public DebitCardController (SelfCheckoutStationBronze ssb) {
 		this.selfCheckoutStationBronze = ssb;
 		this.selfCheckoutStationBronze.cardReader.register(this);
+		printer = new ReceiptPrinterController(this.selfCheckoutStationBronze);
+		completePayment = false;
 		
 	}
 	
 
 	@Override
 	public void aCardHasBeenSwiped() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
 
 	@Override
@@ -59,32 +78,28 @@ public class DebitCardController implements CardReaderListener {
 			//Check Identity
 			
 			long holdNumber = bank.authorizeHold(data.getNumber(), amountDue);
-			if (holdNumber == -1){
-				System.out.println("Hold failed");
-			}
-			else {
-				boolean transactionResult = bank.postTransaction(data.getNumber(), holdNumber, amountDue);
+			
+			boolean transactionResult = bank.postTransaction(data.getNumber(), holdNumber, amountDue);
 
-				 if (transactionResult) {
-					 this.setAmountDue(0.0);
-		             updateAmountDueDisplay();
-		         } else {
-		             System.out.println("Transaction posting failed");
-		         }
+			 if (transactionResult) {
+	             updateAmountDueDisplay();
+	             bank.releaseHold(data.getNumber(), holdNumber);
+	         } else {
+	             System.out.println("Transaction posting failed");
+	         }
 				
 			}		
-			
-		}		
+				
 		
 	}
 	
 	
 	private void updateAmountDueDisplay() {
-		System.out.println("Here is updated total: ");
-		System.out.println("$" + this.getAmountDue());
-		
-		
+		printer.printReceipt("Receipt\n" + "Total $" + totalPrice + "\n" + "By Debit");
+		this.setAmountDue(0.0);
+		completePayment = true;
 	}
+	
 	
 	public void setAmountDue(double amount){
 		amountDue = amount;
@@ -104,25 +119,24 @@ public class DebitCardController implements CardReaderListener {
 
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
-		
+		isEnabled = true;
 	}
 
 	@Override
 	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+		isEnabled = false;
 		
 	}
 
 	@Override
 	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+		isOn = true;
 		
 	}
 
 	@Override
 	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
-		// TODO Auto-generated method stub
+		isOn = false;
 		
 	}
 	

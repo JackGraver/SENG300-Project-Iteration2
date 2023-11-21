@@ -1,6 +1,4 @@
 package com.thelocalmarketplace.software.test;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -10,19 +8,25 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinValidator;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
-import com.thelocalmarketplace.software.addItem.PaymentCoinController;
+import com.thelocalmarketplace.software.PaymentCoinController;
 
 import powerutility.PowerGrid;
-//Michael Svoboda (30039040)
-//Shenuk Perera (30086618)
-//Marvellous Chukwukelu (30197270)
-//Kyuyop Andrew Park(10046592)
-//Darpal Patel (30088795)
+/**
+	Jack Graver - 10187274
+	Christopher Thomson - 30186596
+	Shaim Momin - 30184418
+	Raja Muhammed Omar - 30159575
+	Michael Hoang - 30123605
+	Fei Ding - 30225995
+	Dylan Dizon - 30173525
+	Shenuk Perera - 30086618
+	Darpal Patel - 30088795
+	Md Abu Sinan - 30154627
+ */
 public class PayCoinTest {
 	public SelfCheckoutStationGold selfCheckoutStation;
 	public PaymentCoinController paymentCoinController;
