@@ -9,6 +9,7 @@ Jack Graver
 <br>Dylan Dizon
 <br>Shenuk Perera
 <br>Darpal Patel
+<br>Md Abu Sinan
 
 
 Self Checkout Software project iteration 2. 
