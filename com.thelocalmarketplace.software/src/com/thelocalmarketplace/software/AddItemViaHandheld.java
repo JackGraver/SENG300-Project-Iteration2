@@ -28,6 +28,7 @@ import com.thelocalmarketplace.software.AddItem.StartSession;
 public class AddItemViaHandheld implements BarcodeScannerListener {
 
     private AbstractSelfCheckoutStation checkoutStation;
+    private boolean itemAdded;
 
     public AddItemViaHandheld(AbstractSelfCheckoutStation checkoutStation) {
         this.checkoutStation = checkoutStation;
@@ -52,30 +53,25 @@ public class AddItemViaHandheld implements BarcodeScannerListener {
     @Override
     public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
         if(StartSession.isInSession()) {
-            //not allow scan if customer session in progress already
-            //Need to check if StartSession inSession variable is true, either needs to be static or some type of implementation like singleton
 
-            //following steps from use case:
-            //Block?
             AddItemWithDiscrepancyController.block();
 
             BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
             if(product != null) {
-                //determine characterisitcs (weight and cost) of product associated with barcode
                 double weight = product.getExpectedWeight();
                 long cost = product.getPrice();
                 
-                //update expected weight from bagging area
-                    AddItemWithDiscrepancyController addItemController = new AddItemWithDiscrepancyController(checkoutStation);
-                    addItemController.AddItemToHandleDiscrepancy(new BarcodedItem(barcode, new Mass(weight)));
-
-                //Signal to Customer to place the scanned item in the bagging area
-
-                //Signals to System the weight has changed
+                AddItemWithDiscrepancyController addItemController = new AddItemWithDiscrepancyController(checkoutStation);
+                addItemController.AddItemToHandleDiscrepancy(new BarcodedItem(barcode, new Mass(weight)));
             }
-
-            //Unblock? 
             AddItemWithDiscrepancyController.unblock();
+            itemAdded = true;
+        } else {
+            itemAdded = false;
         }
+    }
+
+    public boolean getItemAdded() {
+        return itemAdded;
     }
 }

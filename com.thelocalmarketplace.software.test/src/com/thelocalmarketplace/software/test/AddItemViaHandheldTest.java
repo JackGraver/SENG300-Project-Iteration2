@@ -1,11 +1,13 @@
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +22,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.AddItemViaHandheld;
+import com.thelocalmarketplace.software.AddItem.StartSession;
 
 import powerutility.PowerGrid;
 /**
@@ -50,6 +53,9 @@ public class AddItemViaHandheldTest {
     BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
     BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
 
+    StartSession session;
+    StartSession sessionSilver;
+    StartSession sessionBronze;
 
     /**
      * Test setup class
@@ -76,6 +82,10 @@ public class AddItemViaHandheldTest {
         checkoutStationBronze.handheldScanner.register(listenerBronze);
         checkoutStationSilver.handheldScanner.register(listenerSilver);
 
+        session = new StartSession(checkoutStation);
+        sessionSilver = new StartSession(checkoutStationSilver);
+        sessionBronze = new StartSession(checkoutStationBronze);
+
         //Activate bronze checkout station
         checkoutStationBronze.plugIn(PowerGrid.instance());
         checkoutStationBronze.turnOn();
@@ -87,38 +97,109 @@ public class AddItemViaHandheldTest {
         //Activate Gold (primary test) checkout station
         checkoutStation.plugIn(PowerGrid.instance());
         checkoutStation.turnOn();
-
-        // ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
-        // ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
-        // System.out.println("test: " + ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode1));
     }
 
-
+    @After
+    public void teardown() {
+        StartSession.endSession();
+    }
 
     @Test
-    public void scanItemNormal() {
+    public void scanItemNormalGold() {
+        session.startSession(PowerGrid.instance());
+
         BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
         BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
 
         ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
         ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
-        // System.out.println("test: " + ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode1));
 
         Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
         BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
 
         checkoutStation.handheldScanner.scan(item);
+
+        assertTrue(listener.getItemAdded());
     }
 
-    // @Test
-    // public void scanNoSession() {
-    //     BarcodedItem item = new BarcodedItem(barcode1, new Mass(5));
-    //     checkoutStation.handheldScanner.scan(item);
-    // }
+    @Test
+    public void scanItemNormalSilver() {
+        sessionSilver.startSession(PowerGrid.instance());
 
-    // @Test
-    // public void testBlock() {
-    //     //?
-    // }
+        BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
 
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
+        BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
+
+        checkoutStationSilver.handheldScanner.scan(item);
+
+        assertTrue(listenerSilver.getItemAdded());
+    }
+
+    @Test
+    public void scanItemNormalBronze() {
+        sessionBronze.startSession(PowerGrid.instance());
+        
+        BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
+        BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
+
+        checkoutStationBronze.handheldScanner.scan(item);
+
+        assertTrue(listenerBronze.getItemAdded());
+    }
+
+    @Test
+    public void scanNoSession() {
+        BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
+        BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
+        checkoutStation.handheldScanner.scan(item);
+
+        assertFalse(listener.getItemAdded());
+    }
+
+    @Test
+    public void scanNoSessionSilver() {
+      BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
+        BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
+        checkoutStationSilver.handheldScanner.scan(item);
+
+        assertFalse(listenerSilver.getItemAdded());
+    }
+
+    @Test
+    public void scanNoSessionBronze() {
+      BarcodedProduct product1 = new BarcodedProduct(barcode1, "Item 1", 10, 15);
+        BarcodedProduct product2 = new BarcodedProduct(barcode2, "Item 2", 5, 3);
+
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product1.getBarcode(), product1);
+        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(product2.getBarcode(), product2);
+
+        Barcode barcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two});
+        BarcodedItem item = new BarcodedItem(barcode, new Mass(10));
+        checkoutStationBronze.handheldScanner.scan(item);
+
+        assertFalse(listenerBronze.getItemAdded());
+    }
 }

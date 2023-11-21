@@ -62,4 +62,8 @@ public class StartSession {
     public static boolean isInSession() {
         return inSession;
     }
+
+    public static void endSession() {
+        inSession = false;
+    }
 }
